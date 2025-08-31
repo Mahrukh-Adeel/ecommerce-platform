@@ -11,6 +11,7 @@ interface Product extends Document{
 const ProductSchema = new Schema<Product>({
     name: {type: String,required: true},
     description: {type: String, required: true},
+    price: {type: Number, required: true},
     image: { type: String },
     categoryId: {type: Schema.Types.ObjectId, ref: 'Category', required: true}
 }, {timestamps: true})
