@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/passport-local": "^1.0.38"
+  }
+}
