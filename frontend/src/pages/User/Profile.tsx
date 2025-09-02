@@ -27,7 +27,6 @@ import {
   ShoppingBag,
   Favorite,
   Settings,
-  Edit,
   Save,
   Cancel,
 } from '@mui/icons-material';
@@ -95,10 +94,6 @@ const Profile: React.FC = () => {
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-
-  const handleEdit = () => {
-    setIsEditing(true);
   };
 
   const handleSave = () => {

@@ -7,21 +7,27 @@ import {
   TextField, 
   IconButton,
   Badge,
-  InputAdornment
+  InputAdornment,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import { 
   Search as SearchIcon,
   FavoriteBorder as WishlistIcon,
-  ShoppingCart as CartIcon
+  ShoppingCart as CartIcon,
+  AccountCircle,
+  Logout
 } from '@mui/icons-material';
 import { useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 
 export default function Navbar() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const { user, isLoggedIn, logout } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartCount, setCartCount] = useState(3);
-  const [wishlistCount, setWishlistCount] = useState(2);
+  const [cartCount] = useState(3);
+  const [wishlistCount] = useState(2);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const navigate = useNavigate();
 
@@ -55,6 +61,23 @@ export default function Navbar() {
     navigate('/signup');
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  const handleProfileMenuOpen = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleProfileMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ top: 0, zIndex: 1100 }}>
@@ -64,10 +87,34 @@ export default function Navbar() {
           </Typography>
           
           <Box sx={{ display: 'flex', gap: 1 }}>
-            {loggedIn ? (
+            {isLoggedIn ? (
               <>
-                <Button color="inherit" size="small">Profile</Button>
-                <Button color="inherit" size="small">Logout</Button>
+                <IconButton 
+                  color="inherit"
+                  onClick={handleProfileMenuOpen}
+                  title={user?.name || 'Profile'}
+                >
+                  <AccountCircle />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleProfileMenuClose}
+                >
+                  <MenuItem onClick={() => {
+                    handleProfileMenuClose();
+                    navigate('/profile');
+                  }}>
+                    Profile
+                  </MenuItem>
+                  <MenuItem onClick={() => {
+                    handleProfileMenuClose();
+                    handleLogout();
+                  }}>
+                    <Logout sx={{ mr: 1 }} />
+                    Logout
+                  </MenuItem>
+                </Menu>
               </>
             ) : (
               <>

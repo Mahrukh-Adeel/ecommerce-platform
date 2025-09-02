@@ -1,10 +1,13 @@
 import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuthStore } from "./store/authStore";
 import Home from "./pages/Home";
 import Category from "./pages/Category";
 import CategoryDetail from "./pages/CategoryDetail";
 import NotFoundPage from "./pages/NotFoundPage";
 import SignUpPage from "./pages/Auth/SignupPage";
 import LoginPage from "./pages/Auth/LoginPage";
+import OAuthCallback from "./pages/Auth/OAuthCallback";
 import Profile from "./pages/User/Profile";
 import ProductDetail from "./pages/ProductDetail";
 import Dashboard from "./pages/Admin/Dashboard";
@@ -14,11 +17,18 @@ import AddProducts from "./pages/Admin/AddProducts";
 import Products from "./pages/Products";
 
 function App() {
+  const { initializeAuth } = useAuthStore();
+
+  useEffect(() => {
+    // Initialize auth on app startup
+    initializeAuth();
+  }, [initializeAuth]);
 
   return (
     <Routes>
       <Route path="/signup" element={<SignUpPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/auth/success" element={<OAuthCallback />} />
       <Route path="/" element={<Home />} />
       <Route path="/categories" element={<Category />} />
       <Route path="/categories/:categoryId" element={<CategoryDetail />} />
