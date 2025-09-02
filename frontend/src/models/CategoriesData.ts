@@ -1,18 +1,20 @@
-export type CategoriesData ={
-    id: string;
-    name: string;
-    description: string;
-    color: string;
-    count: string;
-    products: ProductData[];
-}
+export type CategoriesData = {
+  _id: string; 
+  name: string;
+  description?: string; 
+  count: number; 
+  products: ProductData[];
+};
 
 export type ProductData = {
-    id: number;
+  _id: string; 
+  name: string;
+  description?: string;
+  price: number;
+  image: string;
+  categoryId?: {
+    _id: string;
     name: string;
-    price: number;
-    originalPrice?: number;
     image: string;
-    sale?: boolean;
-    rating: number;
-}
+  };
+};

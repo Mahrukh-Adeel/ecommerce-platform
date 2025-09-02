@@ -4,7 +4,14 @@ import Category from '../models/Category.js';
 
 export const getProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const products = await Product.find()
+    const { category } = req.query;
+    
+    let query = {};
+    if (category) {
+      query = { categoryId: category };
+    }
+    
+    const products = await Product.find(query)
       .populate('categoryId', 'name image')
       .select('name description price image categoryId createdAt')
       .sort({ createdAt: -1 })

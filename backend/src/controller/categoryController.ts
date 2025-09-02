@@ -9,7 +9,6 @@ export const getCategories = async (req: Request, res: Response): Promise<void> 
       .select('name description image')
       .sort({ name: 1 });
 
-    // For each category, count products in Product collection
     const categoriesWithCount = await Promise.all(
       categories.map(async (category) => {
         const count = await Product.countDocuments({ categoryId: category._id });
@@ -52,6 +51,44 @@ export const getProductsByCategory = async (req: Request, res: Response): Promis
     res.status(500).json({
       success: false,
       message: "Error fetching products",
+      error
+    });
+  }
+};
+
+export const getCategoryById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { categoryId } = req.params;
+
+    const category = await Category.findById(categoryId)
+      .select('name description image')
+      .lean();
+
+    if (!category) {
+      res.status(404).json({
+        success: false,
+        message: "Category not found"
+      });
+      return;
+    }
+
+    const count = await Product.countDocuments({ categoryId: categoryId });
+    
+    const categoryWithCount = {
+      ...category,
+      count,
+      countDisplay: count > 0 ? `${count} items` : '0 items'
+    };
+
+    res.status(200).json({
+      success: true,
+      data: categoryWithCount,
+      message: "Category retrieved successfully"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching category",
       error
     });
   }

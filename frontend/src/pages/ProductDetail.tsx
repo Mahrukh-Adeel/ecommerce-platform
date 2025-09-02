@@ -5,13 +5,11 @@ import {
   Container,
   Grid,
   Typography,
-  Rating,
-  Chip,
   Divider,
   IconButton,
   Paper,
-  Tab,
-  Tabs,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import {
   ShoppingCart,
@@ -25,30 +23,77 @@ import {
 } from "@mui/icons-material";
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getProductWithCategory, type ProductWithCategory } from "../data/productData";
 
-const mockProduct = {
-  id: 1,
-  name: "Modern Sectional Sofa",
-  images: [
-    "https://via.placeholder.com/400x300.png?text=Product+Image+1",
-    "https://via.placeholder.com/400x300.png?text=Product+Image+2",
-    "https://via.placeholder.com/400x300.png?text=Product+Image+3",
-  ],
-  price: 1299,
-  description: "Transform your living space with this elegant modern sectional sofa. Crafted with premium materials and designed for both comfort and style, this piece features plush cushioning and a sleek silhouette that complements any contemporary decor.",
-  inStock: true,
-  stockCount: 15,
-  category: "Sofas",
-};
+
 
 const ProductDetail: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
+  const [product, setProduct] = useState<ProductWithCategory | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) {
+        setError('Product ID not found');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const productData = await getProductWithCategory(id);
+        setProduct(productData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setError('Failed to fetch product details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
 
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
   };
+
+  if (loading) {
+    return (
+      <>
+        <NavBar />
+        <Container sx={{ py: 4, minHeight: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <CircularProgress size={60} />
+        </Container>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <>
+        <NavBar />
+        <Container sx={{ py: 4, minHeight: "80vh" }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error || 'Product not found'}
+          </Alert>
+          <Button variant="contained" onClick={() => navigate('/')}>
+            Back to Home
+          </Button>
+        </Container>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -61,32 +106,34 @@ const ProductDetail: React.FC = () => {
               <CardMedia
                 component="img"
                 height="400"
-                image={mockProduct.images[selectedImage]}
-                alt={mockProduct.name}
+                image={(product.images && product.images.length > 0) ? product.images[selectedImage] : '/placeholder-image.jpg'}
+                alt={product.name}
                 sx={{ borderRadius: 1, mb: 2 }}
               />
-              <Grid container spacing={1}>
-                {mockProduct.images.map((image, index) => (
-                  <Grid size={{ xs: 3 }} key={index}>
-                    <CardMedia
-                      component="img"
-                      height="80"
-                      image={image}
-                      alt={`${mockProduct.name} view ${index + 1}`}
-                      onClick={() => setSelectedImage(index)}
-                      sx={{
-                        borderRadius: 1,
-                        cursor: "pointer",
-                        border: selectedImage === index ? 2 : 1,
-                        borderColor: selectedImage === index ? "primary.main" : "grey.300",
-                        "&:hover": {
-                          borderColor: "primary.main",
-                        },
-                      }}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
+              {product.images && product.images.length > 1 && (
+                <Grid container spacing={1}>
+                  {product.images.map((image: string, index: number) => (
+                    <Grid size={{ xs: 3 }} key={index}>
+                      <CardMedia
+                        component="img"
+                        height="80"
+                        image={image}
+                        alt={`${product.name} view ${index + 1}`}
+                        onClick={() => setSelectedImage(index)}
+                        sx={{
+                          borderRadius: 1,
+                          cursor: "pointer",
+                          border: selectedImage === index ? 2 : 1,
+                          borderColor: selectedImage === index ? "primary.main" : "grey.300",
+                          "&:hover": {
+                            borderColor: "primary.main",
+                          },
+                        }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
             </Paper>
           </Grid>
 
@@ -94,18 +141,23 @@ const ProductDetail: React.FC = () => {
           <Grid size={{ xs: 12, md: 6 }}>
             <Box>
               <Typography variant="h4" component="h1" gutterBottom>
-                {mockProduct.name}
+                {product.name}
               </Typography>
 
+              {product.category && (
+                <Typography variant="subtitle1" sx={{ color: "text.secondary", mb: 1 }}>
+                  Category: {product.category.name}
+                </Typography>
+              )}
 
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <Typography variant="h5" sx={{ color: "primary.main", fontWeight: "bold" }}>
-                  ${mockProduct.price}
+                  ${product.price}
                 </Typography>
               </Box>
 
               <Typography variant="body1" sx={{ mb: 3, color: "text.secondary" }}>
-                {mockProduct.description}
+                {product.description}
               </Typography>
 
               <Divider sx={{ mb: 3 }} />
@@ -125,9 +177,6 @@ const ProductDetail: React.FC = () => {
                   <IconButton onClick={() => handleQuantityChange(1)}>
                     <Add />
                   </IconButton>
-                  <Typography variant="body2" sx={{ ml: 2, color: "text.secondary" }}>
-                    {mockProduct.stockCount} in stock
-                  </Typography>
                 </Box>
               </Box>
 
@@ -137,7 +186,6 @@ const ProductDetail: React.FC = () => {
                   size="large"
                   startIcon={<ShoppingCart />}
                   sx={{ flex: 1 }}
-                  disabled={!mockProduct.inStock}
                 >
                   Add to Cart
                 </Button>

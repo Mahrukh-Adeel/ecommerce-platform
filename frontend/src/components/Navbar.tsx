@@ -32,7 +32,7 @@ export default function Navbar() {
 
   const goToCategories = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    navigate('/#categories');
+    navigate('/categories');
   };
 
   const goToHome = (e: MouseEvent<HTMLButtonElement>) => {
