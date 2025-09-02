@@ -1,12 +1,18 @@
 import {type Category} from '../models/Category';
+import { fetchCategories } from '../api/categoryApi';
 
-const categories: Category[] = [
-    { name: 'Living Room', image: '/home/living.jpg', count: '12+ items' },
-    { name: 'Bedroom', image: '/home/bedroom.jpg', count: '8+ items' },
-    { name: 'Dining Room', image: '/home/dining.jpg', count: '6+ items' },
-    { name: 'Office', image: '/home/office.jpg', count: '4+ items' },
-    { name: 'Storage', image: '/home/storage.jpg', count: '9+ items' },
-    { name: 'Outdoor', image: '/home/outdoor.jpg', count: '3+ items' }
-  ];
+export const getCategories = async (): Promise<Category[]> => {
+    try {
+      const categories = await fetchCategories();
+      
+      if (!Array.isArray(categories)) {
+        console.error('Categories is not an array:', categories);
+        return [];
+      }
 
-export default categories;
+      return categories;
+    } catch (error) {
+      console.error('Error fetching categories', error);
+      return [];
+    }
+};

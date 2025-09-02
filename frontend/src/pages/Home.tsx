@@ -2,10 +2,11 @@ import Button from '@mui/material/Button';
 import NavBar from "../components/Navbar";
 import Footer from '../components/Footer';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Card, CardContent, CardMedia, Container, Grid, Paper, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, CircularProgress, Container, Grid, Paper, Typography } from '@mui/material';
 import { ArrowForward, LocalShipping, Refresh, Security, Support } from '@mui/icons-material';
-import { useEffect } from 'react';
-import categories from '../data/categories';
+import { useEffect, useState } from 'react';
+import { getCategories } from '../data/categories';
+import type { Category } from '../models/Category';
 import type { MouseEvent, ReactElement } from 'react';
 
 type Feature = {
@@ -24,6 +25,9 @@ const features: Feature[] = [
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (location.hash === "#categories") {
@@ -32,8 +36,26 @@ const Home: React.FC = () => {
         el.scrollIntoView({ behavior: "smooth" });
       }
     }
-  }, [location]); 
 
+    const fetchData = async() => {
+      try {
+        const data = await getCategories();
+        
+        if (Array.isArray(data)) {
+          setCategories(data);
+        } else {
+          console.error('Categories data is not an array:', data);
+          setCategories([]);
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError('Failed to fetch categories');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [location]); 
 
   const goToCatalog = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -114,37 +136,51 @@ const Home: React.FC = () => {
           sx={{ m: 4, mb: 4, color: 'text.primary', textDecoration: 'underline', textDecorationColor: (theme) => theme.palette.secondary.main, fontWeight: 'bold' }}>
           Shop by Category
         </Typography>
-        <Grid container spacing={5} sx={{ px: 2, display: 'flex', justifyContent: 'center', alignItems: 'center',}}>
-          {categories.map((category) => (
-            <Grid  key={category.name} size={{ xs: 12, sm: 6, md: 4 }}>
-              <Card 
-                sx={{ 
-                  cursor: 'pointer',
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { 
-                    transform: 'translateY(-8px)',
-                    boxShadow: 4
-                  }
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={category.image}
-                  alt={category.name}
-                />
-                <CardContent sx={{ textAlign: 'center', py: 2 }}>
-                  <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
-                    {category.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {category.count}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Typography align="center" color="error">{error}</Typography>
+        ) : (
+          <Grid container spacing={5} sx={{ px: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            {Array.isArray(categories) && categories.map((category) => (
+              <Grid key={category._id || category.name} size={{ xs: 12, sm: 6, md: 4 }}>
+                <Card 
+                  sx={{ 
+                    cursor: 'pointer',
+                    transition: 'transform 0.3s, box-shadow 0.3s',
+                    '&:hover': { 
+                      transform: 'translateY(-8px)',
+                      boxShadow: 4
+                    }
+                  }}
+                  onClick={() => navigate(`/categories/${category._id}`)}
+                >
+                  <CardMedia
+                    component="img"
+                    height="300"
+                    image={category.image}
+                    alt={`Image of ${category.name}`}
+                  />
+                  <CardContent sx={{ textAlign: 'center', py: 2 }}>
+                    <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
+                      {category.name}
+                    </Typography>
+                    {category.description && (
+                      <Typography variant="body2" color="text.secondary">
+                        {category.description}
+                      </Typography>
+                    )}
+                    <Typography variant="body2" color="text.secondary">
+                      {category.countDisplay || `${category.count} items`}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
       
       {/* Features */}
@@ -178,7 +214,6 @@ const Home: React.FC = () => {
             ))}
           </Grid>
         </Paper>
-
 
       {/* Footer */}
       <Footer />

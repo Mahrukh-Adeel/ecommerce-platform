@@ -1,5 +1,8 @@
 export type Category = {
+  _id: string; 
   name: string;
   image: string;
-  count: string;
-}
+  description?: string; 
+  count: number; 
+  countDisplay?: string; 
+};
