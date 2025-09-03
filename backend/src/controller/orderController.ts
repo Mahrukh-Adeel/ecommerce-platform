@@ -82,7 +82,8 @@ export const getOrderById = async (req: Request, res: Response): Promise<void> =
 
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, products, address, paymentMethod } = req.body;
+    const { products, address, paymentMethod } = req.body;
+    const userId = (req.user as any)?._id;
 
     if (!userId || !products || !address || !paymentMethod) {
       res.status(400).json({
@@ -154,7 +155,7 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
     const { id } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
+    const validStatuses = ["placed", "processing", "shipped", "delivered", "cancelled"];
     
     if (!status || !validStatuses.includes(status)) {
       res.status(400).json({

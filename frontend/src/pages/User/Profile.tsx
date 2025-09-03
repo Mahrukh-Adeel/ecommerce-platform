@@ -36,6 +36,8 @@ import {
 import NavBar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useAuthStore } from '../../store/authStore';
+import { useOrderStore } from '../../store/orderStore';
+import { useNavigate } from 'react-router-dom';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -61,6 +63,8 @@ function TabPanel(props: TabPanelProps) {
 
 const Profile: React.FC = () => {
   const { user, updateProfile } = useAuthStore();
+  const { orders, fetchUserOrders, isLoading: ordersLoading } = useOrderStore();
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -79,7 +83,7 @@ const Profile: React.FC = () => {
   const [editInfo, setEditInfo] = useState({ ...userInfo });
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       setUserInfo({
         name: user.name || '',
         email: user.email || '',
@@ -107,29 +111,12 @@ const Profile: React.FC = () => {
     }
   }, [user]);
 
-  const recentOrders = [
-    {
-      id: '#ORD-001',
-      date: '2024-08-15',
-      status: 'Delivered',
-      total: '$1,299.99',
-      items: 'Velvet Sofa, Coffee Table',
-    },
-    {
-      id: '#ORD-002',
-      date: '2024-08-01',
-      status: 'Shipped',
-      total: '$549.99',
-      items: 'Dining Chair Set (4)',
-    },
-    {
-      id: '#ORD-003',
-      date: '2024-07-20',
-      status: 'Delivered',
-      total: '$899.99',
-      items: 'Oak Bookshelf',
-    },
-  ];
+  // Separate effect for fetching orders to avoid dependency issues
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserOrders(user.id);
+    }
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -193,13 +180,17 @@ const Profile: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Delivered':
+    switch (status.toLowerCase()) {
+      case 'delivered':
         return 'success';
-      case 'Shipped':
+      case 'shipped':
         return 'primary';
-      case 'Processing':
+      case 'processing':
+        return 'info';
+      case 'placed':
         return 'warning';
+      case 'cancelled':
+        return 'error';
       default:
         return 'default';
     }
@@ -507,90 +498,90 @@ const Profile: React.FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
-
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Card elevation={1}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
-                      Account Summary
-                    </Typography>
-                    <Box sx={{ mt: 3 }}>
-                      <Grid container spacing={2}>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <Paper elevation={1} sx={{ p: 2, textAlign: 'center' }}>
-                            <Typography variant="h4" color="primary">
-                              12
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Total Orders
-                            </Typography>
-                          </Paper>
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <Paper elevation={1} sx={{ p: 2, textAlign: 'center' }}>
-                            <Typography variant="h4" sx={{ color: '#8A9A5B' }}>
-                              $4,299.97
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Total Spent
-                            </Typography>
-                          </Paper>
-                        </Grid>
-                      </Grid>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
             </Grid>
           </TabPanel>
 
           {/* Order History Tab */}
           <TabPanel value={tabValue} index={1}>
             <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
-              Recent Orders
+              Order History
             </Typography>
-            <Grid container spacing={3}>
-              {recentOrders.map((order) => (
-                <Grid size={{ xs: 12 }} key={order.id}>
-                  <Card elevation={1}>
-                    <CardContent>
-                      <Grid container alignItems="center" spacing={2}>
-                        <Grid size={{ xs: 12, sm: 3 }}>
-                          <Typography variant="h6" color="primary">
-                            {order.id}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {new Date(order.date).toLocaleDateString()}
-                          </Typography>
+            
+            {ordersLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography>Loading orders...</Typography>
+              </Box>
+            ) : orders.length === 0 ? (
+              <Paper elevation={1} sx={{ p: 4, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  No Orders Yet
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                  You haven't placed any orders yet. Start shopping to see your order history here.
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  onClick={() => navigate('/')}
+                  sx={{ bgcolor: '#8A9A5B', '&:hover': { bgcolor: '#7A8A4B' } }}
+                >
+                  Start Shopping
+                </Button>
+              </Paper>
+            ) : (
+              <Grid container spacing={3}>
+                {orders.map((order) => (
+                  <Grid size={{ xs: 12 }} key={order._id}>
+                    <Card elevation={1}>
+                      <CardContent>
+                        <Grid container alignItems="center" spacing={2}>
+                          <Grid size={{ xs: 12, sm: 2 }}>
+                            <Typography variant="h6" color="primary">
+                              #{order._id?.slice(-8).toUpperCase()}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {new Date(order.createdAt || '').toLocaleDateString()}
+                            </Typography>
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 3 }}>
+                            <Typography variant="body1">
+                              {order.products?.length} item{order.products?.length !== 1 ? 's' : ''}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {order.products?.map(p => p.productId?.name).filter(Boolean).join(', ').slice(0, 50)}
+                              {order.products?.map(p => p.productId?.name).filter(Boolean).join(', ').length > 50 ? '...' : ''}
+                            </Typography>
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 2 }}>
+                            <Chip
+                              label={order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
+                              color={getStatusColor(order.status || '')}
+                              size="small"
+                            />
+                            <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
+                              {order.paymentMethod?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            </Typography>
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 2 }}>
+                            <Typography variant="h6" sx={{ color: '#8A9A5B' }}>
+                              ${order.total?.toFixed(2)}
+                            </Typography>
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 1 }}>
+                            <Button 
+                              variant="outlined" 
+                              size="small"
+                              onClick={() => navigate(`/order-confirmation/${order._id}`)}
+                            >
+                              View
+                            </Button>
+                          </Grid>
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 4 }}>
-                          <Typography variant="body1">
-                            {order.items}
-                          </Typography>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 2 }}>
-                          <Chip
-                            label={order.status}
-                            color={getStatusColor(order.status)}
-                            size="small"
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 2 }}>
-                          <Typography variant="h6" sx={{ color: '#8A9A5B' }}>
-                            {order.total}
-                          </Typography>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 1 }}>
-                          <Button variant="outlined" size="small">
-                            View
-                          </Button>
-                        </Grid>
-                      </Grid>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
           </TabPanel>
 
           {/* Settings Tab */}

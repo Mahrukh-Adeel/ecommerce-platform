@@ -133,6 +133,8 @@ export const useAuthStore = create<AuthState>()(
               id: userResponse.user.id,
               email: userResponse.user.email,
               name: userResponse.user.name,
+              phone: userResponse.user.phone,
+              address: userResponse.user.address,
               role: userResponse.user.role,
               token: token
             };
@@ -163,6 +165,8 @@ export const useAuthStore = create<AuthState>()(
                 id: response.user.id,
                 email: response.user.email,
                 name: response.user.name,
+                phone: response.user.phone,
+                address: response.user.address,
                 role: response.user.role,
                 token: token
               };
