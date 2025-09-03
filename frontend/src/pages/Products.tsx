@@ -1,9 +1,5 @@
 import {
   Box,
-  Button,
-  Card,
-  CardContent,
-  CardMedia,
   Container,
   FormControl,
   Grid,
@@ -20,19 +16,35 @@ import {
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
-import { Search, ShoppingCart, FavoriteBorder } from "@mui/icons-material";
+import { Search } from "@mui/icons-material";
 import { fetchProducts } from "../api/productApi";
 import type { ProductData } from "../models/CategoriesData";
-import { useNavigate } from "react-router-dom";
+import ProductCard from '../components/ui/ProductCard';
+import { useCartStore } from '../store/cartStore';
 
 const Products: React.FC = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("name");
   const [allProducts, setAllProducts] = useState<ProductData[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const { addItemToCart } = useCartStore();
+
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addItemToCart(productId, 1);
+      console.log('Product added to cart:', productId);
+    } catch (error) {
+      console.error('Failed to add product to cart:', error);
+    }
+  };
+
+  const handleAddToWishlist = (productId: string) => {
+    console.log('Add to wishlist:', productId);
+    // TODO: Implement wishlist functionality
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -190,60 +202,11 @@ const Products: React.FC = () => {
           <Grid container spacing={3}>
             {filteredProducts.map((product) => (
               <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product._id}>
-                <Card
-                  onClick={() => navigate(`/product/${product._id}`)}
-                  sx={{
-                    cursor: 'pointer',
-                    transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: 4,
-                    },
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={product.image}
-                    alt={product.name}
-                  />
-                  <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="h6" gutterBottom>
-                      {product.name}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{ color: "primary.main", mb: 2, fontWeight: 'bold' }}
-                    >
-                      ${product.price}
-                    </Typography>
-                    <Box sx={{ display: "flex", flexDirection: "row", gap: 1, mt: 'auto' }}>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        startIcon={<ShoppingCart />}
-                        onClick={(e) => {
-                          e.stopPropagation(); 
-                          // Add to cart logic here
-                        }}
-                      >
-                        Add to Cart
-                      </Button>
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation(); 
-                          // Add to wishlist logic here
-                        }}
-                        sx={{ minWidth: 'auto' }}
-                      >
-                        <FavoriteBorder />
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
+                <ProductCard 
+                  product={product} 
+                  onAddToCart={handleAddToCart} 
+                  onAddToWishlist={handleAddToWishlist} 
+                />
               </Grid>
             ))}
           </Grid>

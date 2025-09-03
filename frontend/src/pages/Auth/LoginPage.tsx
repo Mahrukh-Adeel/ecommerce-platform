@@ -7,9 +7,12 @@ import {
   Container,
   Paper,
   Link,
-  Alert
+  Alert,
+  Divider
 } from '@mui/material';
-import { Email, Lock } from '@mui/icons-material';
+import { Email, Lock, Google } from '@mui/icons-material';
+import { useAuthStore } from '../../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginFormData {
   email: string;
@@ -22,6 +25,9 @@ interface LoginFormErrors {
 }
 
 const LoginPage: React.FC = () => {
+  const { login, loginWithGoogle } = useAuthStore();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: ''
@@ -64,16 +70,29 @@ const LoginPage: React.FC = () => {
     if (!validateForm()) {
       return;
     }
+    
     setIsSubmitting(true);
+    setSubmitMessage('');
+    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      await login(formData.email, formData.password);
       setSubmitMessage('Login successful! Welcome back to Everwood!');
-      setFormData({ email: '', password: '' });
-    } catch {
-      setSubmitMessage('Something went wrong. Please try again.');
+      
+      // Navigate to home page or dashboard after successful login
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Login failed:', error);
+      setSubmitMessage(error instanceof Error ? error.message : 'Login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    loginWithGoogle();
   };
 
   return (
@@ -167,6 +186,32 @@ const LoginPage: React.FC = () => {
             }}
           >
             {isSubmitting ? 'Signing In...' : 'Sign In'}
+          </Button>
+
+          {/* Google Login Button */}
+          <Divider sx={{ my: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              OR
+            </Typography>
+          </Divider>
+          
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={<Google />}
+            onClick={handleGoogleLogin}
+            sx={{
+              mb: 2,
+              py: 1.5,
+              borderColor: 'grey.300',
+              color: 'text.primary',
+              '&:hover': {
+                borderColor: 'primary.main',
+                bgcolor: 'grey.50'
+              }
+            }}
+          >
+            Continue with Google
           </Button>
 
           {/* Signup Link */}

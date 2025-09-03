@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -18,6 +18,8 @@ import {
   ListItemIcon,
   Tab,
   Tabs,
+  Alert,
+  Stack,
 } from '@mui/material';
 import {
   Person,
@@ -25,14 +27,15 @@ import {
   Phone,
   LocationOn,
   ShoppingBag,
-  Favorite,
   Settings,
-  Edit,
   Save,
   Cancel,
+  Google,
+  Edit,
 } from '@mui/icons-material';
 import NavBar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { useAuthStore } from '../../store/authStore';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -57,17 +60,52 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const Profile: React.FC = () => {
+  const { user, updateProfile } = useAuthStore();
   const [tabValue, setTabValue] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
+  
   const [userInfo, setUserInfo] = useState({
-    name: 'John Smith',
-    email: 'john.smith@email.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Main Street, New York, NY 10001',
-    joinDate: 'Member since March 2023',
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    joinDate: '',
+    avatar: '',
+    provider: 'local',
   });
 
   const [editInfo, setEditInfo] = useState({ ...userInfo });
+
+  useEffect(() => {
+    if (user) {
+      setUserInfo({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+        joinDate: user.joinDate ? `Member since ${new Date(user.joinDate).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long' 
+        })}` : 'Member since recently',
+        avatar: user.avatar || '',
+        provider: user.provider || 'local',
+      });
+      setEditInfo({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+        joinDate: user.joinDate ? `Member since ${new Date(user.joinDate).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long' 
+        })}` : 'Member since recently',
+        avatar: user.avatar || '',
+        provider: user.provider || 'local',
+      });
+    }
+  }, [user]);
 
   const recentOrders = [
     {
@@ -97,18 +135,57 @@ const Profile: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
+  const handleSave = async () => {
+    if (!user) return;
+    
+    setIsUpdating(true);
+    setUpdateMessage('');
+    
+    try {
+      const updateData: {
+        name?: string;
+        email?: string;
+        phone?: string;
+        address?: string;
+      } = {};
+      
+      if (editInfo.name !== userInfo.name) updateData.name = editInfo.name;
+      if (editInfo.phone !== userInfo.phone) updateData.phone = editInfo.phone;
+      if (editInfo.address !== userInfo.address) updateData.address = editInfo.address;
+      
+      if (userInfo.provider !== 'google' && editInfo.email !== userInfo.email) {
+        updateData.email = editInfo.email;
+      }
 
-  const handleSave = () => {
-    setUserInfo({ ...editInfo });
-    setIsEditing(false);
+      if (Object.keys(updateData).length === 0) {
+        setUpdateMessage('No changes to save');
+        setIsEditing(false);
+        return;
+      }
+
+      await updateProfile(updateData);
+      
+      setUserInfo({ ...editInfo });
+      setIsEditing(false);
+      setUpdateMessage('Profile updated successfully!');
+      
+      setTimeout(() => setUpdateMessage(''), 3000);
+      
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      setUpdateMessage(error instanceof Error ? error.message : 'Failed to update profile');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handleCancel = () => {
     setEditInfo({ ...userInfo });
     setIsEditing(false);
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -133,11 +210,23 @@ const Profile: React.FC = () => {
       <NavBar />
       
       <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
-        {/* Header Section */}
-        <Paper elevation={2} sx={{ p: 4, mb: 4 }}>
+        {!user ? (
+          <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
+            <Typography variant="h5" gutterBottom>
+              Please log in to view your profile
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              You need to be logged in to access your profile information.
+            </Typography>
+          </Paper>
+        ) : (
+          <>
+            {/* Header Section */}
+            <Paper elevation={2} sx={{ p: 4, mb: 4 }}>
           <Grid container spacing={3} alignItems="center">
             <Grid size={{ xs: 12, md: 2 }}>
               <Avatar
+                src={userInfo.provider === 'google' ? userInfo.avatar : undefined}
                 sx={{
                   width: 100,
                   height: 100,
@@ -145,21 +234,40 @@ const Profile: React.FC = () => {
                   fontSize: '2rem',
                 }}
               >
-                {userInfo.name.split(' ').map(n => n[0]).join('')}
+                {!userInfo.avatar && userInfo.name.split(' ').map(n => n[0]).join('')}
               </Avatar>
             </Grid>
             <Grid size={{ xs: 12, md: 7 }}>
-              <Typography variant="h4" gutterBottom sx={{ color: 'primary.main' }}>
-                {userInfo.name}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Typography variant="h4" sx={{ color: 'primary.main' }}>
+                  {userInfo.name}
+                </Typography>
+                {userInfo.provider === 'google' && (
+                  <Chip
+                    icon={<Google />}
+                    label="Google Account"
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                  />
+                )}
+              </Box>
               <Typography variant="body1" color="text.secondary" gutterBottom>
                 {userInfo.email}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {userInfo.joinDate}
               </Typography>
+              {user?.isVerified && (
+                <Chip
+                  label="Verified Account"
+                  size="small"
+                  color="success"
+                  sx={{ mt: 1 }}
+                />
+              )}
             </Grid>
-            {/* <Grid>
+            <Grid>
               <Button
                 variant="contained"
                 startIcon={<Edit />}
@@ -168,7 +276,7 @@ const Profile: React.FC = () => {
               >
                 Edit Profile
               </Button>
-            </Grid> */}
+            </Grid>
           </Grid>
         </Paper>
 
@@ -185,12 +293,6 @@ const Profile: React.FC = () => {
               <Tab
                 icon={<ShoppingBag />}
                 label="Order History"
-                iconPosition="start"
-                sx={{ minHeight: 64 }}
-              />
-              <Tab
-                icon={<Favorite />}
-                label="Wishlist"
                 iconPosition="start"
                 sx={{ minHeight: 64 }}
               />
@@ -302,6 +404,7 @@ const Profile: React.FC = () => {
                           variant="outlined"
                           startIcon={<Cancel />}
                           onClick={handleCancel}
+                          disabled={isUpdating}
                         >
                           Cancel
                         </Button>
@@ -309,11 +412,97 @@ const Profile: React.FC = () => {
                           variant="contained"
                           startIcon={<Save />}
                           onClick={handleSave}
+                          disabled={isUpdating}
                           sx={{ bgcolor: '#8A9A5B', '&:hover': { bgcolor: '#7A8A4B' } }}
                         >
-                          Save Changes
+                          {isUpdating ? 'Saving...' : 'Save Changes'}
                         </Button>
                       </Box>
+                    )}
+                    
+                    {updateMessage && (
+                      <Alert 
+                        severity={updateMessage.includes('successfully') ? 'success' : 'error'}
+                        sx={{ mt: 2 }}
+                      >
+                        {updateMessage}
+                      </Alert>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Account Information Section */}
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Card elevation={1}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
+                      Account Information
+                    </Typography>
+                    <List>
+                      <ListItem>
+                        <ListItemIcon>
+                          {userInfo.provider === 'google' ? <Google color="primary" /> : <Person color="action" />}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Sign-up Method"
+                          secondary={
+                            <>
+                              <Typography variant="caption" color="text.secondary">
+                                {userInfo.provider === 'google' ? 'Google OAuth' : 'Email & Password'}
+                              </Typography>
+                              {userInfo.provider === 'google' && (
+                                <Typography variant="caption" color="text.secondary">
+                                  - Profile picture synced from Google
+                                </Typography>
+                              )}
+                            </>
+                          }
+                        />
+                      </ListItem>
+                      <Divider variant="inset" component="li" />
+                      {user?.isVerified && (
+                        <>
+                          <ListItem>
+                            <ListItemIcon>
+                              <Settings color="success" />
+                            </ListItemIcon>
+                            <ListItemText primary="Account Status" />
+                            <Stack direction="row" spacing={1}>
+                              <Chip
+                                label="✓ Verified Account"
+                                color="success"
+                                size="small"
+                              />
+                            </Stack>
+                          </ListItem>
+                          <Divider variant="inset" component="li" />
+                        </>
+                      )}
+                      <ListItem>
+                        <ListItemIcon>
+                          <Person color="action" />
+                        </ListItemIcon>
+                        <ListItemText primary="Account Type" />
+                        <Stack direction="row" spacing={1}>
+                          <Chip
+                            label={user?.role === 'admin' ? 'Administrator' : 'Customer'}
+                            color={user?.role === 'admin' ? 'secondary' : 'primary'}
+                            size="small"
+                          />
+                        </Stack>
+                      </ListItem>
+                    </List>
+                    
+                    {userInfo.provider === 'google' && (
+                      <Alert severity="info" sx={{ mt: 2 }}>
+                        <Typography variant="body2">
+                          <strong>Google Account Benefits:</strong>
+                          <br />• No password to remember
+                          <br />• Profile picture automatically synced
+                          <br />• Enhanced security through Google
+                        </Typography>
+                      </Alert>
                     )}
                   </CardContent>
                 </Card>
@@ -334,16 +523,6 @@ const Profile: React.FC = () => {
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               Total Orders
-                            </Typography>
-                          </Paper>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <Paper elevation={1} sx={{ p: 2, textAlign: 'center' }}>
-                            <Typography variant="h4" color="secondary">
-                              5
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Wishlist Items
                             </Typography>
                           </Paper>
                         </Grid>
@@ -414,26 +593,8 @@ const Profile: React.FC = () => {
             </Grid>
           </TabPanel>
 
-          {/* Wishlist Tab */}
-          <TabPanel value={tabValue} index={2}>
-            <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
-              Your Wishlist
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Save items you love for later. Your wishlist is empty right now.
-            </Typography>
-            <Box sx={{ mt: 3 }}>
-              <Button
-                variant="contained"
-                sx={{ bgcolor: '#8A9A5B', '&:hover': { bgcolor: '#7A8A4B' } }}
-              >
-                Browse Products
-              </Button>
-            </Box>
-          </TabPanel>
-
           {/* Settings Tab */}
-          <TabPanel value={tabValue} index={3}>
+          <TabPanel value={tabValue} index={2}>
             <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
               Account Settings
             </Typography>
@@ -455,6 +616,8 @@ const Profile: React.FC = () => {
             </Grid>
           </TabPanel>
         </Paper>
+          </>
+        )}
       </Container>
 
       <Footer />

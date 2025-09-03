@@ -7,9 +7,12 @@ import {
   Container,
   Paper,
   Link,
-  Alert
+  Alert,
+  Divider
 } from '@mui/material';
-import { Person, Email, Lock } from '@mui/icons-material';
+import { Person, Email, Lock, Google } from '@mui/icons-material';
+import { useAuthStore } from '../../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 interface FormData {
   firstName: string;
@@ -28,6 +31,9 @@ interface FormErrors {
 }
 
 const SignupPage: React.FC = () => {
+  const { signup, loginWithGoogle } = useAuthStore();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -96,25 +102,29 @@ const SignupPage: React.FC = () => {
     }
 
     setIsSubmitting(true);
+    setSubmitMessage('');
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+      await signup(fullName, formData.email, formData.password);
       
       setSubmitMessage('Account created successfully! Welcome to Everwood!');
       
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-      });
+      // Navigate to home page after successful signup
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
       
-    } catch {
-      setSubmitMessage('Something went wrong. Please try again.');
+    } catch (error) {
+      console.error('Signup failed:', error);
+      setSubmitMessage(error instanceof Error ? error.message : 'Failed to create account. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleSignup = () => {
+    loginWithGoogle();
   };
 
   return (
@@ -254,6 +264,32 @@ const SignupPage: React.FC = () => {
             }}
           >
             {isSubmitting ? 'Creating Account...' : 'Create Account'}
+          </Button>
+
+          {/* Google Signup Button */}
+          <Divider sx={{ my: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              OR
+            </Typography>
+          </Divider>
+          
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={<Google />}
+            onClick={handleGoogleSignup}
+            sx={{
+              mb: 2,
+              py: 1.5,
+              borderColor: 'grey.300',
+              color: 'text.primary',
+              '&:hover': {
+                borderColor: 'primary.main',
+                bgcolor: 'grey.50'
+              }
+            }}
+          >
+            Continue with Google
           </Button>
 
           {/* Login Link */}
