@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  CardMedia,
   Container,
   Grid,
   Typography,
@@ -10,6 +9,7 @@ import {
   Paper,
   CircularProgress,
   Alert,
+  CardMedia,
 } from "@mui/material";
 import {
   ShoppingCart,
@@ -26,41 +26,52 @@ import Footer from "../components/Footer";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductWithCategory, type ProductWithCategory } from "../data/productData";
-
-
+import { useCartStore } from '../store/cartStore';
 
 const ProductDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { productId } = useParams();
   const navigate = useNavigate();
+  const [product, setProduct] = useState<ProductWithCategory | null>(null);
   const [selectedImage, setSelectedImage] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
-  const [product, setProduct] = useState<ProductWithCategory | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const { addItemToCart } = useCartStore();
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    try {
+      await addItemToCart(product._id, quantity);
+      console.log('Product added to cart:', product._id, 'Quantity:', quantity);
+    } catch (error) {
+      console.error('Failed to add product to cart:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      if (!id) {
-        setError('Product ID not found');
+    const loadProduct = async () => {
+      if (!productId) {
+        setError('Product ID is required');
         setLoading(false);
         return;
       }
 
       try {
         setLoading(true);
-        const productData = await getProductWithCategory(id);
+        const productData = await getProductWithCategory(productId);
         setProduct(productData);
         setError(null);
       } catch (err) {
-        console.error('Error fetching product:', err);
-        setError('Failed to fetch product details');
+        setError('Failed to load product');
+        console.error('Error loading product:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
-  }, [id]);
+    loadProduct();
+  }, [productId]);
 
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
@@ -186,6 +197,7 @@ const ProductDetail: React.FC = () => {
                   size="large"
                   startIcon={<ShoppingCart />}
                   sx={{ flex: 1 }}
+                  onClick={handleAddToCart}
                 >
                   Add to Cart
                 </Button>

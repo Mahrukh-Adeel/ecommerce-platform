@@ -9,6 +9,7 @@ import SignUpPage from "./pages/Auth/SignupPage";
 import LoginPage from "./pages/Auth/LoginPage";
 import OAuthCallback from "./pages/Auth/OAuthCallback";
 import Profile from "./pages/User/Profile";
+import CartPage from "./pages/User/CartPage";
 import ProductDetail from "./pages/ProductDetail";
 import Dashboard from "./pages/Admin/Dashboard";
 import ManageOrders from "./pages/Admin/ManageOrders";
@@ -33,6 +34,7 @@ function App() {
       <Route path="/categories" element={<Category />} />
       <Route path="/categories/:categoryId" element={<CategoryDetail />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/cart" element={<CartPage />} />
       <Route path="/products" element={<Products />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/admin/manage-orders" element={<ManageOrders />} />

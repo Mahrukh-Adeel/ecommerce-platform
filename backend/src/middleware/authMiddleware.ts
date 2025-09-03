@@ -111,9 +111,18 @@ export const requireSelfOrAdmin = (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    const userId = req.params.id;
+    // To check for userId parameter first (used in cart routes), then fall back to id
+    const userId = req.params.userId || req.params.id;
     const isOwner = user._id.toString() === userId;
     const isAdmin = user.role === 'admin';
+
+    console.log('🔍 Auth Check:', {
+      userIdFromParams: userId,
+      userIdFromToken: user._id.toString(),
+      isOwner,
+      isAdmin,
+      userRole: user.role
+    });
 
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ 

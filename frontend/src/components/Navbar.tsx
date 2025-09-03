@@ -18,16 +18,24 @@ import {
   AccountCircle,
   Logout
 } from '@mui/icons-material';
-import { useState, type MouseEvent } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useCartStore } from '../store/cartStore';
 
 export default function Navbar() {
   const { user, isLoggedIn, logout } = useAuthStore();
+  const { getTotalItems, getCart } = useCartStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartCount] = useState(3);
   const [wishlistCount] = useState(2);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  useEffect(() => {
+    if (isLoggedIn && user?.id) {
+      console.log('📱 Navbar - Fetching cart for user:', user.id);
+      getCart();
+    }
+  }, [isLoggedIn, user?.id, getCart]);
 
   const navigate = useNavigate();
 
@@ -204,10 +212,10 @@ export default function Navbar() {
 
             <IconButton 
               color="inherit" 
-              onClick={() => console.log('Open cart')}
+              onClick={() => navigate('/cart')}
               title="Shopping Cart"
             >
-              <Badge badgeContent={cartCount} color="error">
+              <Badge badgeContent={getTotalItems()} color="error">
                 <CartIcon />
               </Badge>
             </IconButton>

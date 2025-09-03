@@ -1,4 +1,5 @@
 import api from "./axios";
+import { useAuthStore } from '../store/authStore';
 
 export const signupUser = async (name: string, email: string, password: string) => {
     const response = await api.post("/auth/signup", { name, email, password });
@@ -13,24 +14,11 @@ export const signupUser = async (name: string, email: string, password: string) 
 export const loginUser = async (email: string, password: string) => {
     const response = await api.post("/auth/login", { email, password });
     
-    if (response.data && response.data.success && response.data.user) {
-        if (response.data.tokens) {
-            localStorage.setItem('accessToken', response.data.tokens.accessToken);
-            localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
-        }
-        return response.data;
-    }
-    
     return response.data;
 };
 
 export const getCurrentUser = async () => {
-    const token = localStorage.getItem('accessToken');
-    const response = await api.get('/auth/me', {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+    const response = await api.get('/auth/me');
     
     if (response.data && response.data.success && response.data.user) {
         return response.data;
@@ -39,20 +27,30 @@ export const getCurrentUser = async () => {
     return response.data;
 };
 
-export const logoutUser = async () => {
-    const token = localStorage.getItem('accessToken');
+export const refreshAccessToken = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
     
+    if (!refreshToken) {
+        throw new Error('No refresh token available');
+    }
+    
+    const response = await api.post('/auth/refresh-token', { refreshToken });
+    
+    if (response.data && response.data.success && response.data.accessToken) {
+        const { accessToken } = response.data;
+        useAuthStore.getState().setTokens(accessToken, refreshToken);
+        return response.data;
+    }
+    
+    throw new Error('Failed to refresh token');
+};
+
+export const logoutUser = async () => {
     try {
-        if (token) {
-            await api.post('/auth/logout', {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-        }
+        await api.post('/auth/logout');
     } finally {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        // Clear Zustand state
+        useAuthStore.getState().clearAuth();
     }
 };
 
@@ -74,18 +72,12 @@ export const handleGoogleCallback = (searchParams: URLSearchParams) => {
         throw new Error('No authentication token received');
     }
 
-    // Store tokens
-    if (token) {
-        localStorage.setItem('accessToken', token);
-    }
-    if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
-    }
+    // Store tokens in Zustand
+    useAuthStore.getState().setTokens(token, refreshToken || undefined);
 
     return { token, refreshToken };
 };
 
-// Helper function for OAuth error messages
 const getOAuthErrorMessage = (error: string): string => {
     switch (error) {
         case 'auth_failed':

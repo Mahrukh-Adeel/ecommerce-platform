@@ -1,9 +1,6 @@
 import {
   Box,
   Button,
-  Card,
-  CardContent,
-  CardMedia,
   Container,
   Grid,
   Typography,
@@ -12,12 +9,13 @@ import {
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
-import { ShoppingCart, FavoriteBorder } from "@mui/icons-material";
 import { fetchProductsByCategory } from "../api/productApi";
 import { fetchCategoryById } from "../api/categoryApi";
 import type { ProductData } from "../models/CategoriesData";
 import type { Category } from "../models/Category";
 import { useNavigate, useParams } from "react-router-dom";
+import ProductCard from '../components/ui/ProductCard';
+import { useCartStore } from '../store/cartStore';
 
 const CategoryDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -27,6 +25,22 @@ const CategoryDetail: React.FC = () => {
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const { addItemToCart } = useCartStore();
+
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addItemToCart(productId, 1);
+      console.log('Product added to cart:', productId);
+    } catch (error) {
+      console.error('Failed to add product to cart:', error);
+    }
+  };
+
+  const handleAddToWishlist = (productId: string) => {
+    console.log('Add to wishlist:', productId);
+    // TODO: Implement wishlist functionality
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -125,77 +139,11 @@ const CategoryDetail: React.FC = () => {
           <Grid container spacing={3}>
             {products.map((product) => (
               <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product._id}>
-                <Card
-                  onClick={() => navigate(`/product/${product._id}`)}
-                  sx={{
-                    cursor: 'pointer',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: 4,
-                    },
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="250"
-                    image={product.image}
-                    alt={product.name}
-                    sx={{ objectFit: 'cover' }}
-                  />
-                  <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="h6" gutterBottom>
-                      {product.name}
-                    </Typography>
-                    {product.description && (
-                      <Typography 
-                        variant="body2" 
-                        color="text.secondary" 
-                        sx={{ mb: 2, flexGrow: 1 }}
-                      >
-                        {product.description.length > 100 
-                          ? `${product.description.substring(0, 100)}...` 
-                          : product.description
-                        }
-                      </Typography>
-                    )}
-                    <Box sx={{ mt: 'auto' }}>
-                      <Typography
-                        variant="h5"
-                        sx={{ color: "primary.main", mb: 2, fontWeight: 'bold' }}
-                      >
-                        ${product.price}
-                      </Typography>
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          startIcon={<ShoppingCart />}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Add to cart logic here
-                            console.log('Add to cart:', product._id);
-                          }}
-                        >
-                          Add to Cart
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Add to wishlist logic here
-                            console.log('Add to wishlist:', product._id);
-                          }}
-                        >
-                          <FavoriteBorder />
-                        </Button>
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
+                <ProductCard 
+                  product={product} 
+                  onAddToCart={handleAddToCart} 
+                  onAddToWishlist={handleAddToWishlist} 
+                />
               </Grid>
             ))}
           </Grid>

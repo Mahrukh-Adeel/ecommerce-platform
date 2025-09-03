@@ -31,7 +31,7 @@ export const loginController = (req: Request, res: Response, next: NextFunction)
         success: true,
         message: 'Login successful',
         user: {
-          id: user._id,
+          id: user._id.toString(),
           email: user.email,
           role: user.role,
           firstName: user.firstName,

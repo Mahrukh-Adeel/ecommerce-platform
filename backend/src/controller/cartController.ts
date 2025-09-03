@@ -6,20 +6,12 @@ import Cart from '../models/Cart.js';
 export const getUserCart = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId } = req.params;
+    const authenticatedUserId = (req.user as any)?._id?.toString();
 
-    if (!userId) {
-      res.status(400).json({
+    if (userId !== authenticatedUserId && (req.user as any)?.role !== 'admin') {
+      res.status(403).json({
         success: false,
-        message: "User ID is required"
-      });
-      return;
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: "User not found"
+        message: "Access denied"
       });
       return;
     }
@@ -68,12 +60,21 @@ export const getUserCart = async (req: Request, res: Response): Promise<void> =>
 
 export const addToCart = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, productId, quantity = 1 } = req.body;
+    const { productId, quantity = 1 } = req.body;
+    const userId = (req.user as any)?._id?.toString();
 
-    if (!userId || !productId) {
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: "Authentication required"
+      });
+      return;
+    }
+
+    if (!productId) {
       res.status(400).json({
         success: false,
-        message: "User ID and Product ID are required"
+        message: "Product ID is required"
       });
       return;
     }
@@ -82,15 +83,6 @@ export const addToCart = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({
         success: false,
         message: "Quantity must be greater than 0"
-      });
-      return;
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: "User not found"
       });
       return;
     }
@@ -144,11 +136,12 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
   try {
     const { userId, productId } = req.params;
     const { quantity } = req.body;
+    const authenticatedUserId = (req.user as any)?._id?.toString();
 
-    if (!userId || !productId) {
-      res.status(400).json({
+    if (userId !== authenticatedUserId && (req.user as any)?.role !== 'admin') {
+      res.status(403).json({
         success: false,
-        message: "User ID and Product ID are required"
+        message: "Access denied"
       });
       return;
     }
@@ -157,15 +150,6 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
       res.status(400).json({
         success: false,
         message: "Valid quantity is required"
-      });
-      return;
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: "User not found"
       });
       return;
     }
@@ -212,20 +196,12 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
 export const removeFromCart = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId, productId } = req.params;
+    const authenticatedUserId = (req.user as any)?._id?.toString();
 
-    if (!userId || !productId) {
-      res.status(400).json({
+    if (userId !== authenticatedUserId && (req.user as any)?.role !== 'admin') {
+      res.status(403).json({
         success: false,
-        message: "User ID and Product ID are required"
-      });
-      return;
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: "User not found"
+        message: "Access denied"
       });
       return;
     }
@@ -272,20 +248,12 @@ export const removeFromCart = async (req: Request, res: Response): Promise<void>
 export const clearCart = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId } = req.params;
+    const authenticatedUserId = (req.user as any)?._id?.toString();
 
-    if (!userId) {
-      res.status(400).json({
+    if (userId !== authenticatedUserId && (req.user as any)?.role !== 'admin') {
+      res.status(403).json({
         success: false,
-        message: "User ID is required"
-      });
-      return;
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: "User not found"
+        message: "Access denied"
       });
       return;
     }
