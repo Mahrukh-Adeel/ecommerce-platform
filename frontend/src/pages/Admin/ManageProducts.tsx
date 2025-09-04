@@ -57,10 +57,12 @@ const ManageProducts: React.FC = () => {
     products,
     isLoadingProducts,
     productsError,
+    successMessage,
     fetchAllProducts,
     updateProduct,
     deleteProduct,
     clearErrors,
+    clearSuccess,
   } = useAdminStore();
 
   const [editFormData, setEditFormData] = useState({
@@ -146,6 +148,9 @@ const ManageProducts: React.FC = () => {
 
   const handleEditSubmit = async () => {
     if (selectedProduct) {
+      clearErrors();
+      clearSuccess();
+      
       await updateProduct(selectedProduct._id, {
         name: editFormData.name,
         description: editFormData.description,
@@ -153,6 +158,7 @@ const ManageProducts: React.FC = () => {
         image: editFormData.image,
         categoryId: editFormData.categoryId,
       });
+      
       setEditDialogOpen(false);
       setSelectedProduct(null);
     }
@@ -160,6 +166,8 @@ const ManageProducts: React.FC = () => {
 
   const handleDeleteConfirm = async () => {
     if (selectedProduct) {
+      clearErrors();
+      clearSuccess();
       await deleteProduct(selectedProduct._id);
       setDeleteDialogOpen(false);
       setSelectedProduct(null);
@@ -226,10 +234,46 @@ const ManageProducts: React.FC = () => {
               View, edit, and delete products in your store
             </Typography>
 
-            {productsError && (
+            {successMessage && !productsError && (
+              <Alert 
+                severity="success" 
+                variant="filled"
+                sx={{ 
+                  mb: 3,
+                  borderRadius: 2,
+                  backgroundColor: 'success.main',
+                  color: 'success.contrastText',
+                  '& .MuiAlert-icon': { 
+                    fontSize: 24,
+                    color: 'inherit'
+                  },
+                  '& .MuiAlert-message': {
+                    color: 'inherit'
+                  }
+                }}
+                onClose={clearSuccess}
+              >
+                {successMessage}
+              </Alert>
+            )}
+
+            {productsError && !successMessage && (
               <Alert 
                 severity="error" 
-                sx={{ mb: 3 }}
+                variant="filled"
+                sx={{ 
+                  mb: 3,
+                  borderRadius: 2,
+                  backgroundColor: 'error.main',
+                  color: 'error.contrastText',
+                  '& .MuiAlert-icon': { 
+                    fontSize: 24,
+                    color: 'inherit'
+                  },
+                  '& .MuiAlert-message': {
+                    color: 'inherit'
+                  }
+                }}
                 onClose={clearErrors}
               >
                 {productsError}

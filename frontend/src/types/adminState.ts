@@ -9,6 +9,7 @@ export interface AdminState {
     products: ProductData[];
     isLoadingProducts: boolean;
     productsError: string | null;
+    successMessage: string | null;
 
     fetchAllOrders: () => Promise<void>;
     updateOrderStatus: (orderId: string, status: string) => Promise<void>;
@@ -29,4 +30,5 @@ export interface AdminState {
     }) => Promise<void>;
     deleteProduct: (productId: string) => Promise<void>;
     clearErrors: () => void;
+    clearSuccess: () => void;
 }

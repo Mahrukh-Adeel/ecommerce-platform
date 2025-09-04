@@ -55,9 +55,11 @@ const ManageOrders: React.FC = () => {
     orders,
     isLoadingOrders,
     ordersError,
+    successMessage,
     fetchAllOrders,
     updateOrderStatus,
     clearErrors,
+    clearSuccess,
   } = useAdminStore();
 
   useEffect(() => {
@@ -111,6 +113,8 @@ const ManageOrders: React.FC = () => {
 
   const handleStatusUpdate = async () => {
     if (selectedOrder && newStatus) {
+      clearErrors();
+      clearSuccess();
       await updateOrderStatus(selectedOrder._id!, newStatus);
       setStatusDialogOpen(false);
       setSelectedOrder(null);
@@ -177,10 +181,38 @@ const ManageOrders: React.FC = () => {
               View and manage all customer orders
             </Typography>
 
-            {ordersError && (
+            {successMessage && !ordersError && (
+              <Alert 
+                severity="success" 
+                variant="filled"
+                sx={{ 
+                  mb: 3,
+                  borderRadius: 2,
+                  '& .MuiAlert-icon': { fontSize: 24 },
+                  '& .MuiAlert-filledSuccess': {
+                    backgroundColor: '#4caf50',
+                    color: '#fff'
+                  }
+                }}
+                onClose={clearSuccess}
+              >
+                {successMessage}
+              </Alert>
+            )}
+
+            {ordersError && !successMessage && (
               <Alert 
                 severity="error" 
-                sx={{ mb: 3 }}
+                variant="filled"
+                sx={{ 
+                  mb: 3,
+                  borderRadius: 2,
+                  '& .MuiAlert-icon': { fontSize: 24 },
+                  '& .MuiAlert-filledError': {
+                    backgroundColor: '#f44336',
+                    color: '#fff'
+                  }
+                }}
                 onClose={clearErrors}
               >
                 {ordersError}

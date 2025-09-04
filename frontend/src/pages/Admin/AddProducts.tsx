@@ -45,10 +45,9 @@ const AddProducts: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
-  const { createProduct, productsError, clearErrors } = useAdminStore();
+  const { createProduct, productsError, successMessage, clearErrors, clearSuccess } = useAdminStore();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -130,8 +129,18 @@ const AddProducts: React.FC = () => {
       image: '',
       categoryId: '',
     });
-    setSuccessMessage('');
+    clearSuccess();
     clearErrors();
+  };
+
+  const clearFormOnly = () => {
+    setFormData({
+      name: '',
+      description: '',
+      price: '',
+      image: '',
+      categoryId: '',
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,6 +152,7 @@ const AddProducts: React.FC = () => {
 
     setIsSubmitting(true);
     clearErrors();
+    clearSuccess();
 
     try {
       await createProduct({
@@ -153,10 +163,8 @@ const AddProducts: React.FC = () => {
         categoryId: formData.categoryId,
       });
 
-      setSuccessMessage('Product added successfully!');
-      clearForm();
-
-      setTimeout(() => setSuccessMessage(''), 5000);
+      // Clear form data but keep success message visible
+      clearFormOnly();
     } catch (error) {
       console.error('Failed to add product:', error);
     } finally {
@@ -229,27 +237,45 @@ const AddProducts: React.FC = () => {
           </Card>
 
           {/* Alert Messages */}
-          {successMessage && (
+          {successMessage && !productsError && (
             <Alert 
               severity="success" 
+              variant="filled"
               sx={{ 
                 mb: 3, 
                 borderRadius: 2,
-                '& .MuiAlert-icon': { fontSize: 24 }
+                backgroundColor: 'success.main',
+                color: 'success.contrastText',
+                '& .MuiAlert-icon': { 
+                  fontSize: 24,
+                  color: 'inherit'
+                },
+                '& .MuiAlert-message': {
+                  color: 'inherit'
+                }
               }}
-              onClose={() => setSuccessMessage('')}
+              onClose={clearSuccess}
             >
               {successMessage}
             </Alert>
           )}
 
-          {productsError && (
+          {productsError && !successMessage && (
             <Alert 
               severity="error" 
+              variant="filled"
               sx={{ 
                 mb: 3, 
                 borderRadius: 2,
-                '& .MuiAlert-icon': { fontSize: 24 }
+                backgroundColor: 'error.main',
+                color: 'error.contrastText',
+                '& .MuiAlert-icon': { 
+                  fontSize: 24,
+                  color: 'inherit'
+                },
+                '& .MuiAlert-message': {
+                  color: 'inherit'
+                }
               }} 
               onClose={clearErrors}
             >
