@@ -19,20 +19,25 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
         setIsLoading(true);
         setError(null);
         
-        if (!user && localStorage.getItem('accessToken')) {
+        const token = localStorage.getItem('accessToken');
+        console.log('🔒 AdminProtectedRoute: Checking auth, token exists:', !!token);
+        console.log('🔒 AdminProtectedRoute: User state:', { user: !!user, isLoggedIn });
+        
+        if (!user && token) {
+          console.log('🔄 AdminProtectedRoute: No user but token exists, initializing auth...');
           await initializeAuth();
         }
         
         setIsLoading(false);
       } catch (err) {
-        console.error('Auth initialization failed:', err);
+        console.error('AdminProtectedRoute: Auth initialization failed:', err);
         setError('Authentication failed. Please log in again.');
         setIsLoading(false);
       }
     };
 
     checkAuth();
-  }, [user, initializeAuth]);
+  }, [user, isLoggedIn, initializeAuth]);
 
   if (isLoading) {
     return (
@@ -76,7 +81,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   }
 
   if (!isLoggedIn || !user) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (user.role !== 'admin') {

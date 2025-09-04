@@ -22,6 +22,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearAuth: () => {
+        console.log('🚪 Clearing authentication state');
         set({ 
           user: null, 
           isLoggedIn: false, 
@@ -151,36 +152,60 @@ export const useAuthStore = create<AuthState>()(
       initializeAuth: async () => {
         try {
           const token = localStorage.getItem('accessToken');
+          const refreshToken = localStorage.getItem('refreshToken');
           const persistedUser = useAuthStore.getState().user;
           
           if (token) {
-            set({ accessToken: token });
+            set({ accessToken: token, refreshToken: refreshToken || null });
             
-            const response = await getCurrentUser();
-            
-            console.log('👤 Current user response:', response);
-            
-            if (response.success && response.user) {
-              const user: UserInfo = {
-                id: response.user.id,
-                email: response.user.email,
-                name: response.user.name,
-                phone: response.user.phone,
-                address: response.user.address,
-                role: response.user.role,
-                token: token
-              };
+            try {
+              const response = await getCurrentUser();
               
-              if (persistedUser && String(persistedUser.id) !== String(response.user.id)) {
-                console.log('⚠️ User ID mismatch detected! Clearing old data and using new user data');
+              console.log('👤 Current user response:', response);
+              
+              if (response.success && response.user) {
+                const user: UserInfo = {
+                  id: response.user.id,
+                  email: response.user.email,
+                  name: response.user.name,
+                  phone: response.user.phone,
+                  address: response.user.address,
+                  role: response.user.role,
+                  token: token
+                };
+                
+                if (persistedUser && String(persistedUser.id) !== String(response.user.id)) {
+                  console.log('⚠️ User ID mismatch detected! Clearing old data and using new user data');
+                }
+                
+                set({ user, isLoggedIn: true });
+              } else {
+                throw new Error('Invalid user data');
               }
+            } catch (apiError: unknown) {
+              // If getCurrentUser fails with 401, the axios interceptor will try to refresh
+              // If refresh also fails, it will clear auth automatically
+              console.log('getCurrentUser failed:', apiError);
               
-              set({ user, isLoggedIn: true });
-            } else {
-              throw new Error('Invalid user data');
+              // Only clear auth if it's not a token refresh scenario
+              if (apiError && typeof apiError === 'object' && 'response' in apiError) {
+                const error = apiError as { response?: { status?: number } };
+                if (error.response?.status !== 401) {
+                  throw apiError;
+                }
+              } else {
+                throw apiError;
+              }
+              // For 401 errors, let the axios interceptor handle token refresh
             }
           } else {
             console.log('No token found, user not authenticated');
+            set({ 
+              user: null, 
+              isLoggedIn: false, 
+              accessToken: null, 
+              refreshToken: null 
+            });
           }
         } catch (error) {
           console.error('Auth initialization failed:', error);

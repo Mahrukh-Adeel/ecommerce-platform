@@ -82,9 +82,10 @@ api.interceptors.response.use(
                         throw new Error('Invalid refresh response');
                     }
                 } catch (refreshError) {
-                    console.log('Token refresh failed:', refreshError);
+                    console.log('🔄❌ Token refresh failed:', refreshError);
                     processQueue(refreshError, null);
                     
+                    console.log('🚪 Clearing auth due to refresh failure');
                     useAuthStore.getState().clearAuth();
                     
                     return Promise.reject(refreshError);
