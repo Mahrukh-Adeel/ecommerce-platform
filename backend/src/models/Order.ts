@@ -7,7 +7,7 @@ interface Order extends Document {
     quantity: number;
   }>;
   total: number;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: "placed" | "processing" | "shipped" | "delivered" | "cancelled";
   address: string;
   paymentMethod: string;
 }
@@ -24,8 +24,8 @@ const OrderSchema = new Schema<Order>(
     total: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
-      default: "pending",
+      enum: ["placed", "processing", "shipped", "delivered", "cancelled"],
+      default: "placed",
     },
     address: { type: String, required: true },
     paymentMethod: { type: String, required: true },

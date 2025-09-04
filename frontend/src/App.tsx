@@ -16,6 +16,9 @@ import ManageOrders from "./pages/Admin/ManageOrders";
 import ManageProducts from "./pages/Admin/ManageProducts";
 import AddProducts from "./pages/Admin/AddProducts";
 import Products from "./pages/Products";
+import CheckoutPage from "./pages/User/Checkout";
+import CreditCardDetailsPage from "./pages/User/CreditCardDetails";
+import OrderConfirmation from "./pages/User/OrderConfirmation";
 
 function App() {
   const { initializeAuth } = useAuthStore();
@@ -34,6 +37,9 @@ function App() {
       <Route path="/categories" element={<Category />} />
       <Route path="/categories/:categoryId" element={<CategoryDetail />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/checkout/credit-card" element={<CreditCardDetailsPage />} />
+      <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/products" element={<Products />} />
       <Route path="/product/:id" element={<ProductDetail />} />

@@ -13,14 +13,12 @@ const OAuthCallback: React.FC = () => {
     const processCallback = async () => {
       try {
         await handleOAuthCallback(searchParams);
-        // Redirect to home page on success
         navigate('/', { replace: true });
       } catch (err) {
         console.error('OAuth callback failed:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
         
-        // Redirect to login page after showing error
-        setTimeout(() => {
+         setTimeout(() => {
           navigate('/login', { replace: true });
         }, 3000);
       }

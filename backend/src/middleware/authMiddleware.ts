@@ -111,20 +111,18 @@ export const requireSelfOrAdmin = (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    // To check for userId parameter first (used in cart routes), then fall back to id
     const userId = req.params.userId || req.params.id;
     const isOwner = user._id.toString() === userId;
-    const isAdmin = user.role === 'admin';
 
-    console.log('🔍 Auth Check:', {
+    console.log('Auth Check:', {
       userIdFromParams: userId,
       userIdFromToken: user._id.toString(),
       isOwner,
-      isAdmin,
+      isAdmin: user.role === 'admin',
       userRole: user.role
     });
 
-    if (!isOwner && !isAdmin) {
+    if (!isOwner && user.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
         message: 'Forbidden - You can only access your own data or be an admin' 

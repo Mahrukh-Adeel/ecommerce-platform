@@ -56,7 +56,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, email, password, ...otherFields } = req.body;
+    const { name, email, password, phone, address, ...otherFields } = req.body;
 
     const user = await User.findById(id);
     if (!user) {
@@ -86,6 +86,9 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
       const saltRounds = 10;
       updateData.password = await bcrypt.hash(password, saltRounds);
     }
+    
+    if (phone) updateData.phone = phone;
+    if (address) updateData.address = address;
 
     const updatedUser = await User.findByIdAndUpdate(
       id,

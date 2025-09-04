@@ -133,7 +133,13 @@ export const useAuthStore = create<AuthState>()(
               id: userResponse.user.id,
               email: userResponse.user.email,
               name: userResponse.user.name,
+              phone: userResponse.user.phone,
+              address: userResponse.user.address,
               role: userResponse.user.role,
+              avatar: userResponse.user.avatar,
+              provider: userResponse.user.provider,
+              isVerified: userResponse.user.isVerified,
+              joinDate: userResponse.user.joinDate,
               token: token
             };
             set({ user, isLoggedIn: true });
@@ -163,7 +169,13 @@ export const useAuthStore = create<AuthState>()(
                 id: response.user.id,
                 email: response.user.email,
                 name: response.user.name,
+                phone: response.user.phone,
+                address: response.user.address,
                 role: response.user.role,
+                avatar: response.user.avatar,
+                provider: response.user.provider,
+                isVerified: response.user.isVerified,
+                joinDate: response.user.joinDate,
                 token: token
               };
               
