@@ -4,7 +4,8 @@ import {
   getUserById,
   updateUser,
   deleteUser,
-  getUserProfile
+  getUserProfile,
+  updateUserRole
 } from '../controller/userController.js';
 import { requireAuth, requireAdmin, requireSelfOrAdmin } from '../middleware/authMiddleware.js';
 
@@ -14,6 +15,7 @@ router.get('/', requireAdmin, getAllUsers);
 router.get('/:id', requireSelfOrAdmin, getUserById);
 router.get('/profile/me', requireAuth, getUserProfile);
 router.put('/:id', requireSelfOrAdmin, updateUser);
+router.put('/:id/role', requireAdmin, updateUserRole);
 router.delete('/:id', requireAdmin, deleteUser);
 
 export default router;

@@ -20,7 +20,11 @@ export interface ShippingAddress {
 
 export interface Order {
   _id?: string;
-  userId: string;
+  userId: string | {
+    _id: string;
+    name: string;
+    email: string;
+  };
   products: OrderItem[];
   total: number;
   status: "placed" | "processing" | "shipped" | "delivered" | "cancelled";

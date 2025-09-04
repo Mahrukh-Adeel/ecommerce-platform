@@ -173,3 +173,45 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
     });
   }
 };
+
+export const updateUserRole = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!role || !['user', 'admin'].includes(role)) {
+      res.status(400).json({
+        success: false,
+        message: "Valid role is required (user or admin)"
+      });
+      return;
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+      return;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { role },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+      message: `User role updated to ${role} successfully`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error updating user role",
+      error
+    });
+  }
+};

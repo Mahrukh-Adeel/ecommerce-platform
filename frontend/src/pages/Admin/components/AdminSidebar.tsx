@@ -17,6 +17,7 @@ import {
   Add,
   Inventory,
   ShoppingCart,
+  People,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -26,6 +27,7 @@ const menuItems = [
   { text: "Add Products", icon: <Add />, path: "/admin/add-products" },
   { text: "Manage Products", icon: <Inventory />, path: "/admin/manage-products" },
   { text: "Manage Orders", icon: <ShoppingCart />, path: "/admin/manage-orders" },
+  { text: "Manage Users", icon: <People />, path: "/admin/manage-users" },
 ];
 
 interface AdminSidebarProps {
