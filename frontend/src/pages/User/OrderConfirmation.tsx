@@ -34,21 +34,17 @@ const OrderConfirmation: React.FC = () => {
   const [orderDetails, setOrderDetails] = useState<Order | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  // Handle order initialization only once
   useEffect(() => {
     if (!hasInitialized) {
       if (orderId && orderId !== 'latest') {
-        // Fetch specific order by ID (when coming from profile)
         fetchOrderById(orderId);
       } else if (currentOrder) {
-        // Use current order (when coming from checkout)
         setOrderDetails(currentOrder);
       }
       setHasInitialized(true);
     }
   }, [orderId, currentOrder, hasInitialized]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Update orderDetails when currentOrder changes
   useEffect(() => {
     if (currentOrder) {
       setOrderDetails(currentOrder);

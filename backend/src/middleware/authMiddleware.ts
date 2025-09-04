@@ -114,7 +114,7 @@ export const requireSelfOrAdmin = (req: Request, res: Response, next: NextFuncti
     const userId = req.params.userId || req.params.id;
     const isOwner = user._id.toString() === userId;
 
-    console.log('🔍 Auth Check:', {
+    console.log('Auth Check:', {
       userIdFromParams: userId,
       userIdFromToken: user._id.toString(),
       isOwner,

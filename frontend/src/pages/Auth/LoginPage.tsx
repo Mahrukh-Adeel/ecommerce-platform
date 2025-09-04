@@ -78,7 +78,6 @@ const LoginPage: React.FC = () => {
       await login(formData.email, formData.password);
       setSubmitMessage('Login successful! Welcome back to Everwood!');
       
-      // Navigate to home page or dashboard after successful login
       setTimeout(() => {
         navigate('/');
       }, 1000);

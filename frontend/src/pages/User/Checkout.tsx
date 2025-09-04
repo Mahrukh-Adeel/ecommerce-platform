@@ -115,10 +115,20 @@ const CheckoutPage: React.FC = () => {
         paymentMethod,
       };
 
+      if (paymentMethod === 'credit_card') {
+        navigate('/checkout/credit-card', {
+          state: {
+            shippingAddress,
+            paymentMethod,
+            orderData,
+          }
+        });
+        return;
+      }
+
       await createOrder(orderData);
       await clearCartItems();
       
-      // Redirect to order confirmation page
       navigate('/order-confirmation/latest');
       
     } catch (error) {
@@ -338,7 +348,12 @@ const CheckoutPage: React.FC = () => {
                 disabled={!validateForm() || isSubmitting || isLoading}
                 startIcon={isSubmitting ? <CircularProgress size={20} /> : <Security />}
               >
-                {isSubmitting ? 'Processing...' : 'Place Order'}
+                {isSubmitting 
+                  ? 'Processing...' 
+                  : paymentMethod === 'credit_card' 
+                    ? 'Continue to Payment'
+                    : 'Place Order'
+                }
               </Button>
 
               <Typography variant="caption" display="block" sx={{ mt: 2, textAlign: 'center' }}>
