@@ -13,7 +13,14 @@ const OAuthCallback: React.FC = () => {
     const processCallback = async () => {
       try {
         await handleOAuthCallback(searchParams);
-        navigate('/', { replace: true });
+        
+        const user = useAuthStore.getState().user;
+        
+        if (user?.role === 'admin') {
+          navigate('/admin/dashboard', { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
       } catch (err) {
         console.error('OAuth callback failed:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');

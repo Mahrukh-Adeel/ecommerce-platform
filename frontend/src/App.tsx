@@ -14,11 +14,13 @@ import ProductDetail from "./pages/ProductDetail";
 import Dashboard from "./pages/Admin/Dashboard";
 import ManageOrders from "./pages/Admin/ManageOrders";
 import ManageProducts from "./pages/Admin/ManageProducts";
+import ManageUsers from "./pages/Admin/ManageUsers";
 import AddProducts from "./pages/Admin/AddProducts";
 import Products from "./pages/Products";
 import CheckoutPage from "./pages/User/Checkout";
 import CreditCardDetailsPage from "./pages/User/CreditCardDetails";
 import OrderConfirmation from "./pages/User/OrderConfirmation";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 function App() {
   const { initializeAuth } = useAuthStore();
@@ -43,10 +45,33 @@ function App() {
       <Route path="/cart" element={<CartPage />} />
       <Route path="/products" element={<Products />} />
       <Route path="/product/:id" element={<ProductDetail />} />
-      <Route path="/admin/manage-orders" element={<ManageOrders />} />
-      <Route path="/admin/manage-products" element={<ManageProducts />} />
-      <Route path="/admin/add-products" element={<AddProducts />} />
-      <Route path="/admin/dashboard" element={<Dashboard />} />
+      
+      <Route path="/admin/dashboard" element={
+        <AdminProtectedRoute>
+          <Dashboard />
+        </AdminProtectedRoute>
+      } />
+      <Route path="/admin/manage-orders" element={
+        <AdminProtectedRoute>
+          <ManageOrders />
+        </AdminProtectedRoute>
+      } />
+      <Route path="/admin/manage-products" element={
+        <AdminProtectedRoute>
+          <ManageProducts />
+        </AdminProtectedRoute>
+      } />
+      <Route path="/admin/add-products" element={
+        <AdminProtectedRoute>
+          <AddProducts />
+        </AdminProtectedRoute>
+      } />
+      <Route path="/admin/manage-users" element={
+        <AdminProtectedRoute>
+          <ManageUsers />
+        </AdminProtectedRoute>
+      } />
+      
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )

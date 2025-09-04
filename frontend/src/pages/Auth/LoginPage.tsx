@@ -78,8 +78,14 @@ const LoginPage: React.FC = () => {
       await login(formData.email, formData.password);
       setSubmitMessage('Login successful! Welcome back to Everwood!');
       
+      const user = useAuthStore.getState().user;
+      
       setTimeout(() => {
-        navigate('/');
+        if (user?.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/');
+        }
       }, 1000);
       
     } catch (error) {
