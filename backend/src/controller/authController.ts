@@ -129,6 +129,15 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
 
     const user = req.user as any;
     
+    console.log('🔍 getCurrentUser - Full user object:', {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      provider: user.provider,
+      googleId: user.googleId
+    });
+    
     res.json({
       success: true,
       user: {
@@ -138,6 +147,11 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
         phone: user.phone,
         address: user.address,
         role: user.role,
+        avatar: user.avatar,
+        provider: user.provider,
+        googleId: user.googleId,
+        isVerified: user.isVerified,
+        joinDate: user.createdAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       }

@@ -76,7 +76,6 @@ const Profile: React.FC = () => {
     phone: '',
     address: '',
     joinDate: '',
-    avatar: '',
     provider: 'local',
   });
 
@@ -93,7 +92,6 @@ const Profile: React.FC = () => {
           year: 'numeric', 
           month: 'long' 
         })}` : 'Member since recently',
-        avatar: user.avatar || '',
         provider: user.provider || 'local',
       });
       setEditInfo({
@@ -105,7 +103,6 @@ const Profile: React.FC = () => {
           year: 'numeric', 
           month: 'long' 
         })}` : 'Member since recently',
-        avatar: user.avatar || '',
         provider: user.provider || 'local',
       });
     }
@@ -217,7 +214,6 @@ const Profile: React.FC = () => {
           <Grid container spacing={3} alignItems="center">
             <Grid size={{ xs: 12, md: 2 }}>
               <Avatar
-                src={userInfo.provider === 'google' ? userInfo.avatar : undefined}
                 sx={{
                   width: 100,
                   height: 100,
@@ -225,7 +221,7 @@ const Profile: React.FC = () => {
                   fontSize: '2rem',
                 }}
               >
-                {!userInfo.avatar && userInfo.name.split(' ').map(n => n[0]).join('')}
+                {userInfo.name.split(' ').map(n => n[0]).join('')}
               </Avatar>
             </Grid>
             <Grid size={{ xs: 12, md: 7 }}>
@@ -438,16 +434,9 @@ const Profile: React.FC = () => {
                         <ListItemText
                           primary="Sign-up Method"
                           secondary={
-                            <>
-                              <Typography variant="caption" color="text.secondary">
-                                {userInfo.provider === 'google' ? 'Google OAuth' : 'Email & Password'}
-                              </Typography>
-                              {userInfo.provider === 'google' && (
-                                <Typography variant="caption" color="text.secondary">
-                                  - Profile picture synced from Google
-                                </Typography>
-                              )}
-                            </>
+                            <Typography variant="caption" color="text.secondary">
+                              {userInfo.provider === 'google' ? 'Google OAuth' : 'Email & Password'}
+                            </Typography>
                           }
                         />
                       </ListItem>
@@ -490,7 +479,6 @@ const Profile: React.FC = () => {
                         <Typography variant="body2">
                           <strong>Google Account Benefits:</strong>
                           <br />• No password to remember
-                          <br />• Profile picture automatically synced
                           <br />• Enhanced security through Google
                         </Typography>
                       </Alert>
