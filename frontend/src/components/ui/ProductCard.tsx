@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, Typography, Box, Button } from '@mui/material';
 import { ShoppingCart, FavoriteBorder, Favorite } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useWishlistStore } from '../../store/wishlistStore';
+import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '@mui/material/styles';
+import LoginRequiredAlert from './LoginRequiredAlert';
 
 interface ProductCardProps {
   product: {
@@ -19,6 +21,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { isInWishlist, addItemToWishlist, removeItemFromWishlist } = useWishlistStore();
+  const { isLoggedIn } = useAuthStore();
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  
   const isProductInWishlist = isInWishlist(product._id);
 
   const handleCardClick = () => {
@@ -27,6 +33,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
 
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    if (!isLoggedIn) {
+      setAlertMessage("Please log in to save items to your wishlist");
+      setShowLoginAlert(true);
+      return;
+    }
+    
     try {
       if (isProductInWishlist) {
         await removeItemFromWishlist(product._id);
@@ -36,6 +49,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     } catch (error) {
       console.error('Failed to toggle wishlist:', error);
     }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!isLoggedIn) {
+      setAlertMessage("Please log in to add items to your cart");
+      setShowLoginAlert(true);
+      return;
+    }
+    
+    onAddToCart(product._id);
   };
 
   return (
@@ -143,10 +168,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
               variant="contained"
               fullWidth
               startIcon={<ShoppingCart fontSize="small" />}
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddToCart(product._id);
-              }}
+              onClick={handleAddToCart}
               sx={{
                 bgcolor: 'primary.main',
                 color: 'white',
@@ -190,6 +212,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           </Box>
         </Box>
       </CardContent>
+
+      {/* Login Required Alert */}
+      <LoginRequiredAlert 
+        open={showLoginAlert} 
+        onClose={() => setShowLoginAlert(false)}
+        message={alertMessage}
+      />
     </Card>
   );
 };

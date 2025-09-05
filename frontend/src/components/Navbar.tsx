@@ -392,35 +392,37 @@ export default function Navbar() {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton 
-              color="inherit" 
-              onClick={() => navigate('/wishlist')}
-              title="Wishlist"
-              sx={{
-                color: 'white',
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.15)'
-                }
-              }}
-            >
-              <Badge 
-                badgeContent={getWishlistCount()} 
+            {isLoggedIn && (
+              <IconButton 
+                color="inherit" 
+                onClick={() => navigate('/wishlist')}
+                title="Wishlist"
                 sx={{
-                  '& .MuiBadge-badge': {
-                    bgcolor: 'primary.main',
-                    color: 'white',
-                    fontSize: '11px',
-                    fontWeight: 600
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 255, 255, 0.15)'
                   }
                 }}
               >
-                {isOnWishlistPage ? (
-                  <WishlistFilledIcon />
-                ) : (
-                  <WishlistOutlinedIcon />
-                )}
-              </Badge>
-            </IconButton>
+                <Badge 
+                  badgeContent={getWishlistCount()} 
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      bgcolor: 'primary.main',
+                      color: 'white',
+                      fontSize: '11px',
+                      fontWeight: 600
+                    }
+                  }}
+                >
+                  {isOnWishlistPage ? (
+                    <WishlistFilledIcon />
+                  ) : (
+                    <WishlistOutlinedIcon />
+                  )}
+                </Badge>
+              </IconButton>
+            )}
 
             <IconButton 
               color="inherit" 
