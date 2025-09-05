@@ -32,8 +32,6 @@ export default function Navbar() {
   const { searchQuery, setSearchQuery, anchorEl, setAnchorEl } = useUIStore();
   const [hasInitializedCart, setHasInitializedCart] = useState(false);
 
-  console.log('🛒 Navbar - Current cart:', cart, 'Item count:', cart?.itemCount);
-
   useEffect(() => {
     if (isLoggedIn && user?.id && !hasInitializedCart) {
       console.log('📱 Navbar - Initial fetch for user:', user.id);

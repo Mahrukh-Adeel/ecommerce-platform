@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
-import { getNetworkErrorMessage } from "../utils/errorUtils";
+import TokenManager from "../utils/tokenManager";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -27,13 +27,15 @@ const processQueue = (error: unknown, token: string | null = null) => {
 };
 
 api.interceptors.request.use(
-    (config) => {
-        const { accessToken } = useAuthStore.getState();
-        if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
+    async (config) => {
+        const validToken = await TokenManager.getInstance().ensureValidToken();
+        
+        if (validToken) {
+            config.headers.Authorization = `Bearer ${validToken}`;
         } else {
-            console.log('No auth token available for request:', config.url);
+            console.log('No valid auth token available for request:', config.url);
         }
+        
         return config;
     },
     (error) => {
@@ -67,7 +69,6 @@ api.interceptors.response.use(
             
             if (refreshToken) {
                 try {
-                    console.log('� Attempting to refresh token...');
                     const response = await api.post('/auth/refresh-token', { refreshToken });
                     
                     if (response.data?.success && response.data?.accessToken) {
@@ -83,10 +84,8 @@ api.interceptors.response.use(
                         throw new Error('Invalid refresh response');
                     }
                 } catch (refreshError) {
-                    console.log('🔄❌ Token refresh failed:', refreshError);
                     processQueue(refreshError, null);
                     
-                    console.log('🚪 Clearing auth due to refresh failure');
                     useAuthStore.getState().clearAuth();
                     
                     return Promise.reject(refreshError);

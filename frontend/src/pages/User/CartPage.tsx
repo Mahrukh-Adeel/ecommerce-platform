@@ -44,7 +44,6 @@ const CartPage: React.FC = () => {
 
   useEffect(() => {
     if (isLoggedIn && user?.id) {
-      console.log('🛒 CartPage - Fetching cart for user:', user.id);
       getCart();
     }
   }, [isLoggedIn, user?.id, getCart]);
