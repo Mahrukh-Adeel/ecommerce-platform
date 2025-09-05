@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/server.js",
+  "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec \"node --import 'data:text/javascript,import { register } from \\\"node:module\\\"; import { pathToFileURL } from \\\"node:url\\\"; register(\\\"ts-node/esm\\\", pathToFileURL(\\\"./\\\"));'\" src/server.ts",
-    "build": "tsc",
+    "build": "echo 'Building TypeScript...' && tsc && echo 'Build complete!'",
     "start": "node dist/server.js",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "echo 'Running heroku-postbuild...' && npm run build && echo 'heroku-postbuild complete!'"
   },
   "keywords": [],
   "author": "",
