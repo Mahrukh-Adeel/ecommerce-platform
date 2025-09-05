@@ -5,10 +5,8 @@ const MONGO_URI = process.env.MONGO_URI as string;
 const connectDB = async () => {
     try{
         await mongoose.connect(MONGO_URI, {
-            // Add SSL/TLS options for better compatibility
             ssl: true,
-            serverSelectionTimeoutMS: 30000, // 30 seconds
-            socketTimeoutMS: 30000, // 30 seconds
+            serverSelectionTimeoutMS: 5000,
         });
         console.log("MongoDB Connected");
     } catch (error) {
