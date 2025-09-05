@@ -26,18 +26,25 @@ import { useWishlistStore } from '../store/wishlistStore';
 
 export default function Navbar() {
   const { user, isLoggedIn, logout } = useAuthStore();
-  const { getTotalItems, getCart } = useCartStore();
+  const { getCart, cart } = useCartStore();
   const { getWishlistCount, fetchWishlist } = useWishlistStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [hasInitializedCart, setHasInitializedCart] = useState(false);
+
+  console.log('🛒 Navbar - Current cart:', cart, 'Item count:', cart?.itemCount);
 
   useEffect(() => {
-    if (isLoggedIn && user?.id) {
-      console.log('📱 Navbar - Fetching cart for user:', user.id);
+    if (isLoggedIn && user?.id && !hasInitializedCart) {
+      console.log('📱 Navbar - Initial fetch for user:', user.id);
       getCart();
       fetchWishlist(user.id).catch(console.error);
+      setHasInitializedCart(true);
+    } else if (!isLoggedIn) {
+      setHasInitializedCart(false);
     }
-  }, [isLoggedIn, user?.id, getCart, fetchWishlist]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, user?.id, hasInitializedCart]);
 
   const navigate = useNavigate();
 
@@ -219,7 +226,7 @@ export default function Navbar() {
               onClick={() => navigate('/cart')}
               title="Shopping Cart"
             >
-              <Badge badgeContent={getTotalItems()} color="error">
+              <Badge badgeContent={cart?.itemCount || 0} color="error">
                 <CartIcon />
               </Badge>
             </IconButton>

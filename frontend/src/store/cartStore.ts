@@ -13,7 +13,9 @@ export const useCartStore = create<CartState>()(
       getCart: async () => {
         set({ isLoading: true, error: null });
         try {
+          console.log('🔄 Fetching cart from server...');
           const cart = await fetchCart();
+          console.log('📦 Cart fetched:', cart);
           set({ cart, isLoading: false });
         } catch (error) {
           console.error('Failed to fetch cart:', error);
@@ -28,6 +30,9 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true, error: null });
         try {
           const cart = await addToCart({ productId, quantity });
+          console.log('✅ Cart after adding item:', cart);
+          console.log('✅ Item count in returned cart:', cart?.itemCount);
+          console.log('✅ Items array length:', cart?.items?.length);
           set({ cart, isLoading: false });
         } catch (error) {
           console.error('Failed to add item to cart:', error);
@@ -57,6 +62,7 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true, error: null });
         try {
           const cart = await removeFromCart(productId);
+          console.log('Cart after removing item:', cart);
           set({ cart, isLoading: false });
         } catch (error) {
           console.error('Failed to remove cart item:', error);

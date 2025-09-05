@@ -40,12 +40,18 @@ export const getUserCart = async (req: Request, res: Response): Promise<void> =>
       return sum;
     }, 0);
 
+    const itemCount = cart.items.reduce((count: number, item: any) => {
+      return count + item.quantity;
+    }, 0);
+
     res.status(200).json({
       success: true,
       data: {
+        _id: cart._id,
+        userId: cart.userId,
         items: cart.items,
         total,
-        itemCount: cart.items.length
+        itemCount
       },
       message: "Cart retrieved successfully"
     });
@@ -118,9 +124,27 @@ export const addToCart = async (req: Request, res: Response): Promise<void> => {
     await cart.save();
     await cart.populate('items.productId', 'name price images stock');
 
+    // Calculate total and itemCount like in getUserCart
+    const total = cart.items.reduce((sum: number, item: any) => {
+      if (item.productId) {
+        return sum + (item.productId.price * item.quantity);
+      }
+      return sum;
+    }, 0);
+
+    const itemCount = cart.items.reduce((count: number, item: any) => {
+      return count + item.quantity;
+    }, 0);
+
     res.status(200).json({
       success: true,
-      data: cart,
+      data: {
+        _id: cart._id,
+        userId: cart.userId,
+        items: cart.items,
+        total,
+        itemCount
+      },
       message: "Item added to cart successfully"
     });
   } catch (error) {
@@ -179,9 +203,27 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
     await cart.save();
     await cart.populate('items.productId', 'name price images stock');
 
+    // Calculate total and itemCount
+    const total = cart.items.reduce((sum: number, item: any) => {
+      if (item.productId) {
+        return sum + (item.productId.price * item.quantity);
+      }
+      return sum;
+    }, 0);
+
+    const itemCount = cart.items.reduce((count: number, item: any) => {
+      return count + item.quantity;
+    }, 0);
+
     res.status(200).json({
       success: true,
-      data: cart,
+      data: {
+        _id: cart._id,
+        userId: cart.userId,
+        items: cart.items,
+        total,
+        itemCount
+      },
       message: "Cart item updated successfully"
     });
   } catch (error) {
@@ -231,9 +273,27 @@ export const removeFromCart = async (req: Request, res: Response): Promise<void>
     await cart.save();
     await cart.populate('items.productId', 'name price images stock');
 
+    // Calculate total and itemCount
+    const total = cart.items.reduce((sum: number, item: any) => {
+      if (item.productId) {
+        return sum + (item.productId.price * item.quantity);
+      }
+      return sum;
+    }, 0);
+
+    const itemCount = cart.items.reduce((count: number, item: any) => {
+      return count + item.quantity;
+    }, 0);
+
     res.status(200).json({
       success: true,
-      data: cart,
+      data: {
+        _id: cart._id,
+        userId: cart.userId,
+        items: cart.items,
+        total,
+        itemCount
+      },
       message: "Item removed from cart successfully"
     });
   } catch (error) {
