@@ -1,12 +1,18 @@
-import Product from '../models/Product.js';
-export const getProducts = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteProduct = exports.updateProduct = exports.createProducts = exports.getProductById = exports.getProducts = void 0;
+const Product_js_1 = __importDefault(require("../models/Product.js"));
+const getProducts = async (req, res) => {
     try {
         const { category } = req.query;
         let query = {};
         if (category) {
             query = { categoryId: category };
         }
-        const products = await Product.find(query)
+        const products = await Product_js_1.default.find(query)
             .populate('categoryId', 'name image')
             .select('name description price image categoryId createdAt')
             .sort({ createdAt: -1 })
@@ -25,10 +31,11 @@ export const getProducts = async (req, res) => {
         });
     }
 };
-export const getProductById = async (req, res) => {
+exports.getProducts = getProducts;
+const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.findById(id)
+        const product = await Product_js_1.default.findById(id)
             .populate('categoryId', 'name description image')
             .lean();
         if (!product) {
@@ -52,7 +59,8 @@ export const getProductById = async (req, res) => {
         });
     }
 };
-export const createProducts = async (req, res) => {
+exports.getProductById = getProductById;
+const createProducts = async (req, res) => {
     try {
         const { name, description, price, image, categoryId } = req.body;
         if (!name || !description || !price || !categoryId) {
@@ -67,7 +75,7 @@ export const createProducts = async (req, res) => {
                 message: "Price must be a number"
             });
         }
-        const newProduct = new Product({ name, description, price, image, categoryId });
+        const newProduct = new Product_js_1.default({ name, description, price, image, categoryId });
         await newProduct.save();
         await newProduct.populate('categoryId', 'name image');
         res.status(201).json({
@@ -84,11 +92,12 @@ export const createProducts = async (req, res) => {
         });
     }
 };
-export const updateProduct = async (req, res) => {
+exports.createProducts = createProducts;
+const updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, description, price, image, categoryId } = req.body;
     try {
-        const product = await Product.findById(id);
+        const product = await Product_js_1.default.findById(id);
         if (!product) {
             return res.status(404).json({
                 success: false,
@@ -115,10 +124,11 @@ export const updateProduct = async (req, res) => {
         });
     }
 };
-export const deleteProduct = async (req, res) => {
+exports.updateProduct = updateProduct;
+const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
-        const product = await Product.findByIdAndDelete(id);
+        const product = await Product_js_1.default.findByIdAndDelete(id);
         if (!product) {
             return res.status(404).json({
                 success: false,
@@ -138,4 +148,5 @@ export const deleteProduct = async (req, res) => {
         });
     }
 };
+exports.deleteProduct = deleteProduct;
 //# sourceMappingURL=productController.js.map

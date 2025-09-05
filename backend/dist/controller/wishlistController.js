@@ -1,8 +1,14 @@
-import Wishlist from "../models/Wishlist.js";
-export const getWishlist = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.removeFromWishlist = exports.addToWishlist = exports.getWishlist = void 0;
+const Wishlist_js_1 = __importDefault(require("../models/Wishlist.js"));
+const getWishlist = async (req, res) => {
     try {
         const { userId } = req.params;
-        const wishlist = await Wishlist.find({ userId })
+        const wishlist = await Wishlist_js_1.default.find({ userId })
             .populate("productId", "name description price image")
             .sort({ createdAt: -1 })
             .lean();
@@ -20,7 +26,8 @@ export const getWishlist = async (req, res) => {
         });
     }
 };
-export const addToWishlist = async (req, res) => {
+exports.getWishlist = getWishlist;
+const addToWishlist = async (req, res) => {
     try {
         const { productId } = req.body;
         const userId = req.user?._id;
@@ -32,12 +39,12 @@ export const addToWishlist = async (req, res) => {
             res.status(400).json({ success: false, message: "productId is required" });
             return;
         }
-        const existing = await Wishlist.findOne({ userId, productId });
+        const existing = await Wishlist_js_1.default.findOne({ userId, productId });
         if (existing) {
             res.status(400).json({ success: false, message: "Product already in wishlist" });
             return;
         }
-        const newWishlistItem = new Wishlist({ userId, productId });
+        const newWishlistItem = new Wishlist_js_1.default({ userId, productId });
         await newWishlistItem.save();
         await newWishlistItem.populate("productId", "name description price image");
         res.status(201).json({
@@ -54,7 +61,8 @@ export const addToWishlist = async (req, res) => {
         });
     }
 };
-export const removeFromWishlist = async (req, res) => {
+exports.addToWishlist = addToWishlist;
+const removeFromWishlist = async (req, res) => {
     try {
         const { productId } = req.body;
         const userId = req.user?._id;
@@ -62,7 +70,7 @@ export const removeFromWishlist = async (req, res) => {
             res.status(401).json({ success: false, message: "User not authenticated" });
             return;
         }
-        const item = await Wishlist.findOneAndDelete({ userId, productId });
+        const item = await Wishlist_js_1.default.findOneAndDelete({ userId, productId });
         if (!item) {
             res.status(404).json({
                 success: false,
@@ -83,4 +91,5 @@ export const removeFromWishlist = async (req, res) => {
         });
     }
 };
+exports.removeFromWishlist = removeFromWishlist;
 //# sourceMappingURL=wishlistController.js.map

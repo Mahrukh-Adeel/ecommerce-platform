@@ -1,23 +1,28 @@
-import express from "express";
-import passport from "passport";
-import { getCurrentUser, registerController, refreshTokenController, logoutController } from "../controller/authController.js";
-import { loginController } from "../controller/loginController.js";
-import { requireAuth } from "../middleware/authMiddleware.js";
-import { generateTokenPair } from "../utils/jwtUtils.js";
-const router = express.Router();
-router.post("/signup", registerController);
-router.post("/login", loginController);
-router.post("/logout", requireAuth, logoutController);
-router.post("/refresh-token", refreshTokenController);
-router.get("/me", requireAuth, getCurrentUser);
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const passport_1 = __importDefault(require("passport"));
+const authController_js_1 = require("../controller/authController.js");
+const loginController_js_1 = require("../controller/loginController.js");
+const authMiddleware_js_1 = require("../middleware/authMiddleware.js");
+const jwtUtils_js_1 = require("../utils/jwtUtils.js");
+const router = express_1.default.Router();
+router.post("/signup", authController_js_1.registerController);
+router.post("/login", loginController_js_1.loginController);
+router.post("/logout", authMiddleware_js_1.requireAuth, authController_js_1.logoutController);
+router.post("/refresh-token", authController_js_1.refreshTokenController);
+router.get("/me", authMiddleware_js_1.requireAuth, authController_js_1.getCurrentUser);
 // Google OAuth routes
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-router.get("/google/callback", passport.authenticate("google", { session: false }), (req, res) => {
+router.get("/google", passport_1.default.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/google/callback", passport_1.default.authenticate("google", { session: false }), (req, res) => {
     try {
         if (!req.user) {
             return res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
         }
-        const tokens = generateTokenPair(req.user);
+        const tokens = (0, jwtUtils_js_1.generateTokenPair)(req.user);
         res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`);
     }
     catch (error) {
@@ -89,5 +94,5 @@ router.get("/session/check", (req, res) => {
   }
 });
 */
-export default router;
+exports.default = router;
 //# sourceMappingURL=authRoutes.js.map

@@ -1,8 +1,14 @@
-import User from '../models/User.js';
-import bcrypt from 'bcrypt';
-export const getAllUsers = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.updateUserRole = exports.getUserProfile = exports.deleteUser = exports.updateUser = exports.getUserById = exports.getAllUsers = void 0;
+const User_js_1 = __importDefault(require("../models/User.js"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find()
+        const users = await User_js_1.default.find()
             .select('-password')
             .sort({ createdAt: -1 })
             .lean();
@@ -20,10 +26,11 @@ export const getAllUsers = async (req, res) => {
         });
     }
 };
-export const getUserById = async (req, res) => {
+exports.getAllUsers = getAllUsers;
+const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User.findById(id)
+        const user = await User_js_1.default.findById(id)
             .select('-password')
             .lean();
         if (!user) {
@@ -47,11 +54,12 @@ export const getUserById = async (req, res) => {
         });
     }
 };
-export const updateUser = async (req, res) => {
+exports.getUserById = getUserById;
+const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, password, phone, address, ...otherFields } = req.body;
-        const user = await User.findById(id);
+        const user = await User_js_1.default.findById(id);
         if (!user) {
             res.status(404).json({
                 success: false,
@@ -63,7 +71,7 @@ export const updateUser = async (req, res) => {
         if (name)
             updateData.name = name;
         if (email) {
-            const existingUser = await User.findOne({ email, _id: { $ne: id } });
+            const existingUser = await User_js_1.default.findOne({ email, _id: { $ne: id } });
             if (existingUser) {
                 res.status(400).json({
                     success: false,
@@ -75,13 +83,13 @@ export const updateUser = async (req, res) => {
         }
         if (password) {
             const saltRounds = 10;
-            updateData.password = await bcrypt.hash(password, saltRounds);
+            updateData.password = await bcrypt_1.default.hash(password, saltRounds);
         }
         if (phone)
             updateData.phone = phone;
         if (address)
             updateData.address = address;
-        const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select('-password');
+        const updatedUser = await User_js_1.default.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select('-password');
         res.status(200).json({
             success: true,
             data: updatedUser,
@@ -96,10 +104,11 @@ export const updateUser = async (req, res) => {
         });
     }
 };
-export const deleteUser = async (req, res) => {
+exports.updateUser = updateUser;
+const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User.findByIdAndDelete(id);
+        const user = await User_js_1.default.findByIdAndDelete(id);
         if (!user) {
             res.status(404).json({
                 success: false,
@@ -120,7 +129,8 @@ export const deleteUser = async (req, res) => {
         });
     }
 };
-export const getUserProfile = async (req, res) => {
+exports.deleteUser = deleteUser;
+const getUserProfile = async (req, res) => {
     try {
         const userId = req.user?._id;
         if (!userId) {
@@ -130,7 +140,7 @@ export const getUserProfile = async (req, res) => {
             });
             return;
         }
-        const user = await User.findById(userId)
+        const user = await User_js_1.default.findById(userId)
             .select('-password')
             .lean();
         if (!user) {
@@ -154,7 +164,8 @@ export const getUserProfile = async (req, res) => {
         });
     }
 };
-export const updateUserRole = async (req, res) => {
+exports.getUserProfile = getUserProfile;
+const updateUserRole = async (req, res) => {
     try {
         const { id } = req.params;
         const { role } = req.body;
@@ -165,7 +176,7 @@ export const updateUserRole = async (req, res) => {
             });
             return;
         }
-        const user = await User.findById(id);
+        const user = await User_js_1.default.findById(id);
         if (!user) {
             res.status(404).json({
                 success: false,
@@ -173,7 +184,7 @@ export const updateUserRole = async (req, res) => {
             });
             return;
         }
-        const updatedUser = await User.findByIdAndUpdate(id, { role }, { new: true, runValidators: true }).select('-password');
+        const updatedUser = await User_js_1.default.findByIdAndUpdate(id, { role }, { new: true, runValidators: true }).select('-password');
         res.status(200).json({
             success: true,
             data: updatedUser,
@@ -188,4 +199,5 @@ export const updateUserRole = async (req, res) => {
         });
     }
 };
+exports.updateUserRole = updateUserRole;
 //# sourceMappingURL=userController.js.map

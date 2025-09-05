@@ -1,7 +1,13 @@
-import User from "../models/User.js";
-import { hashPassword } from "../utils/authUtils.js";
-import { verifyRefreshToken, generateAccessToken } from "../utils/jwtUtils.js";
-export const registerController = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.logoutController = exports.getCurrentUser = exports.refreshTokenController = exports.registerController = void 0;
+const User_js_1 = __importDefault(require("../models/User.js"));
+const authUtils_js_1 = require("../utils/authUtils.js");
+const jwtUtils_js_1 = require("../utils/jwtUtils.js");
+const registerController = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
         if (!name || !email || !password) {
@@ -26,7 +32,7 @@ export const registerController = async (req, res) => {
             });
             return;
         }
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User_js_1.default.findOne({ email });
         if (existingUser) {
             res.status(409).json({
                 success: false,
@@ -34,8 +40,8 @@ export const registerController = async (req, res) => {
             });
             return;
         }
-        const hashedPassword = await hashPassword(password);
-        const newUser = new User({
+        const hashedPassword = await (0, authUtils_js_1.hashPassword)(password);
+        const newUser = new User_js_1.default({
             name,
             email,
             password: hashedPassword,
@@ -62,7 +68,8 @@ export const registerController = async (req, res) => {
         });
     }
 };
-export const refreshTokenController = async (req, res) => {
+exports.registerController = registerController;
+const refreshTokenController = async (req, res) => {
     try {
         const { refreshToken } = req.body;
         if (!refreshToken) {
@@ -72,8 +79,8 @@ export const refreshTokenController = async (req, res) => {
             });
             return;
         }
-        const payload = verifyRefreshToken(refreshToken);
-        const user = await User.findById(payload.id);
+        const payload = (0, jwtUtils_js_1.verifyRefreshToken)(refreshToken);
+        const user = await User_js_1.default.findById(payload.id);
         if (!user) {
             res.status(404).json({
                 success: false,
@@ -81,7 +88,7 @@ export const refreshTokenController = async (req, res) => {
             });
             return;
         }
-        const newAccessToken = generateAccessToken({
+        const newAccessToken = (0, jwtUtils_js_1.generateAccessToken)({
             id: (user._id).toString(),
             email: user.email,
             role: user.role || 'user'
@@ -101,7 +108,8 @@ export const refreshTokenController = async (req, res) => {
         });
     }
 };
-export const getCurrentUser = async (req, res) => {
+exports.refreshTokenController = refreshTokenController;
+const getCurrentUser = async (req, res) => {
     try {
         if (!req.user) {
             res.status(401).json({
@@ -134,7 +142,8 @@ export const getCurrentUser = async (req, res) => {
         });
     }
 };
-export const logoutController = async (req, res) => {
+exports.getCurrentUser = getCurrentUser;
+const logoutController = async (req, res) => {
     try {
         res.json({
             success: true,
@@ -150,4 +159,5 @@ export const logoutController = async (req, res) => {
         });
     }
 };
+exports.logoutController = logoutController;
 //# sourceMappingURL=authController.js.map

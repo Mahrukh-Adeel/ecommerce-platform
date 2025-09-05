@@ -4,8 +4,8 @@
     "rootDir": "./src",
     "outDir": "./dist",
 
-    /* Module + Target for Node.js (ESM style imports) */
-    "module": "esnext", 
+    /* Module + Target for Node.js (CommonJS for better compatibility) */
+    "module": "commonjs", 
     "target": "es2020",
     "moduleResolution": "node",
 

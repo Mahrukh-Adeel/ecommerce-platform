@@ -1,13 +1,19 @@
-import Category from "../models/Category.js";
-import Product from "../models/Product.js";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getCategoryById = exports.getProductsByCategory = exports.getCategories = void 0;
+const Category_js_1 = __importDefault(require("../models/Category.js"));
+const Product_js_1 = __importDefault(require("../models/Product.js"));
 // Get all categories (for product forms and display)
-export const getCategories = async (req, res) => {
+const getCategories = async (req, res) => {
     try {
-        const categories = await Category.find()
+        const categories = await Category_js_1.default.find()
             .select('name description image')
             .sort({ name: 1 });
         const categoriesWithCount = await Promise.all(categories.map(async (category) => {
-            const count = await Product.countDocuments({ categoryId: category._id });
+            const count = await Product_js_1.default.countDocuments({ categoryId: category._id });
             return {
                 ...category.toObject(),
                 count,
@@ -28,10 +34,11 @@ export const getCategories = async (req, res) => {
         });
     }
 };
-export const getProductsByCategory = async (req, res) => {
+exports.getCategories = getCategories;
+const getProductsByCategory = async (req, res) => {
     try {
         const { categoryId } = req.params;
-        const products = await Product.find({ categoryId: categoryId })
+        const products = await Product_js_1.default.find({ categoryId: categoryId })
             .populate('categoryId', 'name image')
             .lean();
         res.status(200).json({
@@ -48,10 +55,11 @@ export const getProductsByCategory = async (req, res) => {
         });
     }
 };
-export const getCategoryById = async (req, res) => {
+exports.getProductsByCategory = getProductsByCategory;
+const getCategoryById = async (req, res) => {
     try {
         const { categoryId } = req.params;
-        const category = await Category.findById(categoryId)
+        const category = await Category_js_1.default.findById(categoryId)
             .select('name description image')
             .lean();
         if (!category) {
@@ -61,7 +69,7 @@ export const getCategoryById = async (req, res) => {
             });
             return;
         }
-        const count = await Product.countDocuments({ categoryId: categoryId });
+        const count = await Product_js_1.default.countDocuments({ categoryId: categoryId });
         const categoryWithCount = {
             ...category,
             count,
@@ -81,4 +89,5 @@ export const getCategoryById = async (req, res) => {
         });
     }
 };
+exports.getCategoryById = getCategoryById;
 //# sourceMappingURL=categoryController.js.map

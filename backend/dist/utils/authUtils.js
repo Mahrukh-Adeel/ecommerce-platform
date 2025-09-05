@@ -1,11 +1,19 @@
-import bcrypt from "bcrypt";
-export async function hashPassword(password) {
-    return bcrypt.hash(password, 10);
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validatePassword = void 0;
+exports.hashPassword = hashPassword;
+exports.comparePassword = comparePassword;
+const bcrypt_1 = __importDefault(require("bcrypt"));
+async function hashPassword(password) {
+    return bcrypt_1.default.hash(password, 10);
 }
-export async function comparePassword(password, hash) {
-    return bcrypt.compare(password, hash);
+async function comparePassword(password, hash) {
+    return bcrypt_1.default.compare(password, hash);
 }
-export const validatePassword = (password) => {
+const validatePassword = (password) => {
     if (!password) {
         return { isValid: false, message: 'Password is required' };
     }
@@ -22,4 +30,5 @@ export const validatePassword = (password) => {
     }
     return { isValid: true };
 };
+exports.validatePassword = validatePassword;
 //# sourceMappingURL=authUtils.js.map

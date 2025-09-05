@@ -1,6 +1,12 @@
-import passport from "passport";
-export const requireAuth = (req, res, next) => {
-    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.requireSelfOrAdmin = exports.requireAdmin = exports.optionalAuth = exports.requireAnyAuth = exports.requireSessionAuth = exports.requireAuth = void 0;
+const passport_1 = __importDefault(require("passport"));
+const requireAuth = (req, res, next) => {
+    passport_1.default.authenticate('jwt', { session: false }, (err, user, info) => {
         if (err) {
             return res.status(500).json({
                 success: false,
@@ -19,7 +25,8 @@ export const requireAuth = (req, res, next) => {
         next();
     })(req, res, next);
 };
-export const requireSessionAuth = (req, res, next) => {
+exports.requireAuth = requireAuth;
+const requireSessionAuth = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
     }
@@ -28,14 +35,16 @@ export const requireSessionAuth = (req, res, next) => {
         message: 'Please log in to access this resource'
     });
 };
-export const requireAnyAuth = (req, res, next) => {
+exports.requireSessionAuth = requireSessionAuth;
+const requireAnyAuth = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
     }
-    requireAuth(req, res, next);
+    (0, exports.requireAuth)(req, res, next);
 };
-export const optionalAuth = (req, res, next) => {
-    passport.authenticate('jwt', { session: false }, (err, user) => {
+exports.requireAnyAuth = requireAnyAuth;
+const optionalAuth = (req, res, next) => {
+    passport_1.default.authenticate('jwt', { session: false }, (err, user) => {
         if (err) {
             return res.status(500).json({
                 success: false,
@@ -49,8 +58,9 @@ export const optionalAuth = (req, res, next) => {
         next();
     })(req, res, next);
 };
-export const requireAdmin = (req, res, next) => {
-    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+exports.optionalAuth = optionalAuth;
+const requireAdmin = (req, res, next) => {
+    passport_1.default.authenticate('jwt', { session: false }, (err, user, info) => {
         if (err) {
             return res.status(500).json({
                 success: false,
@@ -75,8 +85,9 @@ export const requireAdmin = (req, res, next) => {
         next();
     })(req, res, next);
 };
-export const requireSelfOrAdmin = (req, res, next) => {
-    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+exports.requireAdmin = requireAdmin;
+const requireSelfOrAdmin = (req, res, next) => {
+    passport_1.default.authenticate('jwt', { session: false }, (err, user, info) => {
         if (err) {
             return res.status(500).json({
                 success: false,
@@ -110,4 +121,5 @@ export const requireSelfOrAdmin = (req, res, next) => {
         next();
     })(req, res, next);
 };
+exports.requireSelfOrAdmin = requireSelfOrAdmin;
 //# sourceMappingURL=authMiddleware.js.map

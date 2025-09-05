@@ -1,10 +1,16 @@
-import Order from '../models/Order.js';
-import Product from '../models/Product.js';
-import User from '../models/User.js';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteOrder = exports.updateOrderStatus = exports.createOrder = exports.getOrderById = exports.getOrdersByUser = exports.getAllOrders = void 0;
+const Order_js_1 = __importDefault(require("../models/Order.js"));
+const Product_js_1 = __importDefault(require("../models/Product.js"));
+const User_js_1 = __importDefault(require("../models/User.js"));
 //For Admin
-export const getAllOrders = async (req, res) => {
+const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.find()
+        const orders = await Order_js_1.default.find()
             .populate('userId', 'name email')
             .populate('products.productId', 'name price images')
             .sort({ createdAt: -1 })
@@ -23,10 +29,11 @@ export const getAllOrders = async (req, res) => {
         });
     }
 };
-export const getOrdersByUser = async (req, res) => {
+exports.getAllOrders = getAllOrders;
+const getOrdersByUser = async (req, res) => {
     try {
         const { userId } = req.params;
-        const orders = await Order.find({ userId })
+        const orders = await Order_js_1.default.find({ userId })
             .populate('products.productId', 'name price images')
             .sort({ createdAt: -1 })
             .lean();
@@ -44,10 +51,11 @@ export const getOrdersByUser = async (req, res) => {
         });
     }
 };
-export const getOrderById = async (req, res) => {
+exports.getOrdersByUser = getOrdersByUser;
+const getOrderById = async (req, res) => {
     try {
         const { id } = req.params;
-        const order = await Order.findById(id)
+        const order = await Order_js_1.default.findById(id)
             .populate('userId', 'name email')
             .populate('products.productId', 'name price images')
             .lean();
@@ -72,7 +80,8 @@ export const getOrderById = async (req, res) => {
         });
     }
 };
-export const createOrder = async (req, res) => {
+exports.getOrderById = getOrderById;
+const createOrder = async (req, res) => {
     try {
         const { products, address, paymentMethod } = req.body;
         const userId = req.user?._id;
@@ -90,7 +99,7 @@ export const createOrder = async (req, res) => {
             });
             return;
         }
-        const user = await User.findById(userId);
+        const user = await User_js_1.default.findById(userId);
         if (!user) {
             res.status(404).json({
                 success: false,
@@ -100,7 +109,7 @@ export const createOrder = async (req, res) => {
         }
         let total = 0;
         for (const item of products) {
-            const product = await Product.findById(item.productId);
+            const product = await Product_js_1.default.findById(item.productId);
             if (!product) {
                 res.status(404).json({
                     success: false,
@@ -110,7 +119,7 @@ export const createOrder = async (req, res) => {
             }
             total += product.price * item.quantity;
         }
-        const newOrder = new Order({
+        const newOrder = new Order_js_1.default({
             userId,
             products,
             total,
@@ -134,7 +143,8 @@ export const createOrder = async (req, res) => {
         });
     }
 };
-export const updateOrderStatus = async (req, res) => {
+exports.createOrder = createOrder;
+const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
@@ -147,7 +157,7 @@ export const updateOrderStatus = async (req, res) => {
             });
             return;
         }
-        const order = await Order.findByIdAndUpdate(id, { status }, { new: true, runValidators: true })
+        const order = await Order_js_1.default.findByIdAndUpdate(id, { status }, { new: true, runValidators: true })
             .populate('userId', 'name email')
             .populate('products.productId', 'name price images');
         if (!order) {
@@ -171,10 +181,11 @@ export const updateOrderStatus = async (req, res) => {
         });
     }
 };
-export const deleteOrder = async (req, res) => {
+exports.updateOrderStatus = updateOrderStatus;
+const deleteOrder = async (req, res) => {
     try {
         const { id } = req.params;
-        const order = await Order.findById(id);
+        const order = await Order_js_1.default.findById(id);
         if (!order) {
             res.status(404).json({
                 success: false,
@@ -189,7 +200,7 @@ export const deleteOrder = async (req, res) => {
             });
             return;
         }
-        await Order.findByIdAndDelete(id);
+        await Order_js_1.default.findByIdAndDelete(id);
         res.status(200).json({
             success: true,
             message: "Order cancelled successfully"
@@ -203,4 +214,5 @@ export const deleteOrder = async (req, res) => {
         });
     }
 };
+exports.deleteOrder = deleteOrder;
 //# sourceMappingURL=orderController.js.map
