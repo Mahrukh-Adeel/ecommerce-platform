@@ -10,9 +10,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec \"node --import 'data:text/javascript,import { register } from \\\"node:module\\\"; import { pathToFileURL } from \\\"node:url\\\"; register(\\\"ts-node/esm\\\", pathToFileURL(\\\"./\\\"));'\" src/server.ts",
-    "build": "echo 'Building TypeScript...' && tsc && echo 'Build complete!'",
+    "build": "tsc",
     "start": "node dist/server.js",
-    "heroku-postbuild": "echo 'Running heroku-postbuild...' && npm run build && echo 'heroku-postbuild complete!'"
+    "postinstall": "npm run build",
+    "heroku-postbuild": "npm run build"
   },
   "keywords": [],
   "author": "",
