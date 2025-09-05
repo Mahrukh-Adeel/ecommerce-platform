@@ -11,6 +11,7 @@ import {
   Menu,
   MenuItem
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { 
   Search as SearchIcon,
   Clear as ClearIcon,
@@ -29,6 +30,7 @@ import { useWishlistStore } from '../store/wishlistStore';
 import { useUIStore } from '../store/uiStore';
 
 export default function Navbar() {
+  const theme = useTheme();
   const { user, isLoggedIn, logout } = useAuthStore();
   const { getCart, cart } = useCartStore();
   const { getWishlistCount, fetchWishlist } = useWishlistStore();
@@ -113,7 +115,7 @@ export default function Navbar() {
         sx={{ 
           top: 0, 
           zIndex: 1100,
-          bgcolor: '#4E2A1E', 
+          bgcolor: 'primary.main', 
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
         }}
       >
@@ -132,7 +134,7 @@ export default function Navbar() {
               cursor: 'pointer',
               fontWeight: 600,
               letterSpacing: 0.5,
-              color: '#FEEFE5',
+              color: 'background.default',
               '&:hover': {
                 opacity: 0.9
               }
@@ -149,7 +151,7 @@ export default function Navbar() {
                   onClick={handleProfileMenuOpen}
                   title={user?.name || 'Profile'}
                   sx={{
-                    color: '#FEEFE5',
+                    color: 'background.default',
                     '&:hover': {
                       bgcolor: 'rgba(255, 255, 255, 0.1)'
                     }
@@ -163,10 +165,10 @@ export default function Navbar() {
                   onClose={handleProfileMenuClose}
                   PaperProps={{
                     sx: {
-                      bgcolor: '#FFFFFF',
-                      border: '1px solid #e0e0e0',
+                      bgcolor: 'background.paper',
+                      border: `1px solid ${theme.palette.divider}`,
                       '& .MuiMenuItem-root': {
-                        color: '#4c525c'
+                        color: 'text.primary'
                       }
                     }
                   }}
@@ -197,7 +199,7 @@ export default function Navbar() {
                 <Button 
                   onClick={goToLogin} 
                   sx={{
-                    color: '#FEEFE5',
+                    color: 'background.default',
                     textTransform: 'none',
                     fontSize: '14px',
                     fontWeight: 500,
@@ -214,16 +216,16 @@ export default function Navbar() {
                   onClick={goToSignup}
                   variant="outlined"
                   sx={{
-                    color: '#FEEFE5',
-                    borderColor: '#FEEFE5',
+                    color: 'background.default',
+                    borderColor: 'background.default',
                     textTransform: 'none',
                     fontSize: '14px',
                     fontWeight: 500,
                     px: 2,
                     py: 0.5,
                     '&:hover': {
-                      bgcolor: 'rgba(254, 239, 229, 0.1)',
-                      borderColor: '#FEEFE5'
+                      bgcolor: `${theme.palette.background.default}1A`,
+                      borderColor: 'background.default'
                     }
                   }}
                 >
@@ -241,7 +243,7 @@ export default function Navbar() {
         sx={{ 
           top: 64,
           zIndex: 1099,
-          bgcolor: '#8A9A5B', 
+          bgcolor: 'secondary.main', 
           borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
         }}
       >
@@ -330,10 +332,10 @@ export default function Navbar() {
                         onClick={handleClearSearch}
                         size="small" 
                         sx={{ 
-                          color: '#4c525c',
+                          color: 'text.primary',
                           mr: 0.5,
                           '&:hover': {
-                            bgcolor: 'rgba(76, 82, 92, 0.1)'
+                            bgcolor: `${theme.palette.text.primary}1A`
                           }
                         }}
                       >
@@ -344,9 +346,9 @@ export default function Navbar() {
                       type="submit" 
                       size="small" 
                       sx={{ 
-                        color: '#4c525c',
+                        color: 'text.primary',
                         '&:hover': {
-                          bgcolor: 'rgba(76, 82, 92, 0.1)'
+                          bgcolor: `${theme.palette.text.primary}1A`
                         }
                       }}
                     >
@@ -355,25 +357,25 @@ export default function Navbar() {
                   </InputAdornment>
                 ),
                 sx: {
-                  backgroundColor: '#FEEFE5',
+                  backgroundColor: 'background.default',
                   borderRadius: 2,
                   fontSize: '14px',
                   '& .MuiInputBase-input': {
-                    color: '#4c525c',
+                    color: 'text.primary',
                     py: 1,
                   },
                   '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(76, 82, 92, 0.6)',
+                    color: `${theme.palette.text.primary}99`,
                     opacity: 1,
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
                     borderColor: 'transparent',
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(78, 42, 30, 0.3)',
+                    borderColor: `${theme.palette.primary.main}4D`,
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#4E2A1E',
+                    borderColor: 'primary.main',
                     borderWidth: '2px'
                   },
                 }
@@ -397,7 +399,7 @@ export default function Navbar() {
                 badgeContent={getWishlistCount()} 
                 sx={{
                   '& .MuiBadge-badge': {
-                    bgcolor: '#4E2A1E',
+                    bgcolor: 'primary.main',
                     color: 'white',
                     fontSize: '11px',
                     fontWeight: 600
@@ -427,7 +429,7 @@ export default function Navbar() {
                 badgeContent={cart?.itemCount || 0}
                 sx={{
                   '& .MuiBadge-badge': {
-                    bgcolor: '#4E2A1E',
+                    bgcolor: 'primary.main',
                     color: 'white',
                     fontSize: '11px',
                     fontWeight: 600
