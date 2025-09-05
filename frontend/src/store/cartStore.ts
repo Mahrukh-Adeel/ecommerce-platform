@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { fetchCart, addToCart, updateCartItem, removeFromCart, clearCart } from "../api/cartApi";
 import type { CartState } from "../types/cart";
+import { getErrorMessage } from "../utils/errorUtils";
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -19,8 +20,9 @@ export const useCartStore = create<CartState>()(
           set({ cart, isLoading: false });
         } catch (error) {
           console.error('Failed to fetch cart:', error);
+          const errorMessage = getErrorMessage(error);
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to fetch cart',
+            error: errorMessage,
             isLoading: false 
           });
         }
@@ -36,11 +38,12 @@ export const useCartStore = create<CartState>()(
           set({ cart, isLoading: false });
         } catch (error) {
           console.error('Failed to add item to cart:', error);
+          const errorMessage = getErrorMessage(error);
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to add item to cart',
+            error: errorMessage,
             isLoading: false 
           });
-          throw error;
+          throw new Error(errorMessage);
         }
       },
 

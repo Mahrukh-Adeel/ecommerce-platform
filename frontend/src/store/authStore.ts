@@ -4,6 +4,7 @@ import type { UserInfo } from '../models/UserInfo';
 import { signupUser, loginUser, initiateGoogleAuth, handleGoogleCallback, getCurrentUser, logoutUser } from '../api/authApi';
 import { updateUserProfile } from '../api/userApi';
 import type { AuthState } from '../types/authState';
+import { getAuthErrorMessage } from '../utils/errorUtils';
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -48,8 +49,9 @@ export const useAuthStore = create<AuthState>()(
             throw new Error(response.message || 'Signup failed');
           }
         } catch (error) {
+          const friendlyMessage = getAuthErrorMessage(error);
           console.error('Signup failed:', error);
-          throw error;
+          throw new Error(friendlyMessage);
         }
       },
 
@@ -84,8 +86,9 @@ export const useAuthStore = create<AuthState>()(
             throw new Error(response.message || 'Login failed');
           }
         } catch (error) {
+          const friendlyMessage = getAuthErrorMessage(error);
           console.error('Login failed:', error);
-          throw error;
+          throw new Error(friendlyMessage);
         }
       },
 

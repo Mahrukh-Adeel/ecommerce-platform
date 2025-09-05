@@ -31,16 +31,16 @@ passport.use(
       try {
         const user = await User.findOne({ email });
         if (!user) {
-          return done(null, false, { message: "User not found" });
+          return done(null, false, { message: "No account found with this email address" });
         }
 
         if (!user.password) {
-          return done(null, false, { message: "Please use OAuth login" });
+          return done(null, false, { message: "This account uses social login. Please sign in with Google" });
         }
 
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch) {
-          return done(null, false, { message: "Invalid credentials" });
+          return done(null, false, { message: "Invalid password. Please check your password and try again" });
         }
 
         return done(null, user);
