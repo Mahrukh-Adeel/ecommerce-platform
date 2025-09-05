@@ -48,7 +48,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const navigate = useNavigate();
 
   const drawer = (
-    <div>
+    <Box>
       <Toolbar>
         <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "bold" }}>
           Admin Panel
@@ -65,7 +65,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
           </ListItem>
         ))}
       </List>
-    </div>
+    </Box>
   );
 
   return (

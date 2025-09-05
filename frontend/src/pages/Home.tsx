@@ -2,12 +2,11 @@ import Button from '@mui/material/Button';
 import NavBar from "../components/Navbar";
 import Footer from '../components/Footer';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Card, CardContent, CardMedia, CircularProgress, Container, Grid, Paper, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, CircularProgress, Container, Grid, Paper, Typography, Alert } from '@mui/material';
 import { ArrowForward, LocalShipping, Refresh, Security, Support } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
-import { getCategories } from '../data/categories';
-import type { Category } from '../models/Category';
+import { useEffect } from 'react';
 import type { MouseEvent, ReactElement } from 'react';
+import { useCategoriesStore } from '../store/categoriesStore';
 
 type Feature = {
   icon: ReactElement;
@@ -25,9 +24,12 @@ const features: Feature[] = [
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    categories, 
+    loading, 
+    error, 
+    fetchAllCategories 
+  } = useCategoriesStore();
 
   useEffect(() => {
     if (location.hash === "#categories") {
@@ -39,23 +41,16 @@ const Home: React.FC = () => {
 
     const fetchData = async() => {
       try {
-        const data = await getCategories();
-        
-        if (Array.isArray(data)) {
-          setCategories(data);
-        } else {
-          console.error('Categories data is not an array:', data);
-          setCategories([]);
-        }
+        await fetchAllCategories();
       } catch (err) {
         console.error('Error fetching categories:', err);
-        setError('Failed to fetch categories');
-      } finally {
-        setLoading(false);
       }
+    };
+    
+    if (categories.length === 0) {
+      fetchData();
     }
-    fetchData();
-  }, [location]); 
+  }, [location, fetchAllCategories, categories.length]); 
 
   const goToCatalog = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -141,7 +136,11 @@ const Home: React.FC = () => {
             <CircularProgress />
           </Box>
         ) : error ? (
-          <Typography align="center" color="error">{error}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Alert severity="error" sx={{ maxWidth: 600 }}>
+              {error}
+            </Alert>
+          </Box>
         ) : (
           <Grid container spacing={5} sx={{ px: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             {Array.isArray(categories) && categories.map((category) => (

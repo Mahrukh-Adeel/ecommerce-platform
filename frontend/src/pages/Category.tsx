@@ -7,23 +7,27 @@ import {
   TextField,
   Typography,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Search } from "@mui/icons-material";
-import { getCategoriesWithProducts } from "../data/categoriesData";
-import type { CategoriesData } from "../models/CategoriesData";
 import ProductCard from '../components/ui/ProductCard';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
 import { useAuthStore } from '../store/authStore';
+import { useCategoriesStore } from '../store/categoriesStore';
 
 const Category: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [categories, setCategories] = useState<CategoriesData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    categoriesWithProducts, 
+    loading, 
+    error,
+    searchTerm,
+    setSearchTerm,
+    fetchCategoriesWithProducts 
+  } = useCategoriesStore();
   
   const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
@@ -60,23 +64,16 @@ const Category: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getCategoriesWithProducts();
-        
-        if (Array.isArray(data)) {
-          setCategories(data);
-        } else {
-          console.error('Data is not an array:', data);
-          setCategories([]);
-        }
+        await fetchCategoriesWithProducts();
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError("Failed to fetch categories");
-      } finally {
-        setLoading(false);
+        console.error('Error fetching categories with products:', err);
       }
     };
-    fetchData();
-  }, []);
+    
+    if (categoriesWithProducts.length === 0) {
+      fetchData();
+    }
+  }, [fetchCategoriesWithProducts, categoriesWithProducts.length]);
 
   if (loading) {
     return (
@@ -90,11 +87,17 @@ const Category: React.FC = () => {
 
   if (error) {
     return (
-      <Container>
-        <Typography align="center" color="error">
-          {error}
-        </Typography>
-      </Container>
+      <>
+        <NavBar />
+        <Container>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Alert severity="error" sx={{ maxWidth: 600 }}>
+              {error}
+            </Alert>
+          </Box>
+        </Container>
+        <Footer />
+      </>
     );
   }
 
@@ -153,8 +156,8 @@ const Category: React.FC = () => {
           </Grid>
         </Paper>
 
-        {Array.isArray(categories) && categories.length > 0 ? (
-          categories.map((category, index) => (
+        {Array.isArray(categoriesWithProducts) && categoriesWithProducts.length > 0 ? (
+          categoriesWithProducts.map((category, index) => (
             <Box key={category._id || index} sx={{ mb: 6 }}>
               {/* Category Header */}
               <Paper sx={{ p: 3, mb: 3, bgcolor: "primary.main", color: "white" }}>

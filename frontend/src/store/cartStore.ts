@@ -27,7 +27,6 @@ export const useCartStore = create<CartState>()(
       },
 
       addItemToCart: async (productId: string, quantity: number = 1) => {
-        console.log('🛒 Adding item to cart:', { productId, quantity });
         set({ isLoading: true, error: null });
         try {
           const cart = await addToCart({ productId, quantity });
@@ -36,7 +35,7 @@ export const useCartStore = create<CartState>()(
           console.log('✅ Items array length:', cart?.items?.length);
           set({ cart, isLoading: false });
         } catch (error) {
-          console.error('❌ Failed to add item to cart:', error);
+          console.error('Failed to add item to cart:', error);
           set({ 
             error: error instanceof Error ? error.message : 'Failed to add item to cart',
             isLoading: false 

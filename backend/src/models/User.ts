@@ -6,7 +6,7 @@ export interface User extends mongoose.Document {
   email: string;
   phone?: string;
   address?: string;
-  password?: string; // Make optional for OAuth users
+  password?: string; // Optional for OAuth users
   joinDate?: Date;
   wishlist?: mongoose.Types.ObjectId[]; // Array of Product IDs
   orders?: mongoose.Types.ObjectId[];   // Array of Order IDs

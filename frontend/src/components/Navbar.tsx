@@ -23,13 +23,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
+import { useUIStore } from '../store/uiStore';
 
 export default function Navbar() {
   const { user, isLoggedIn, logout } = useAuthStore();
   const { getCart, cart } = useCartStore();
   const { getWishlistCount, fetchWishlist } = useWishlistStore();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { searchQuery, setSearchQuery, anchorEl, setAnchorEl } = useUIStore();
   const [hasInitializedCart, setHasInitializedCart] = useState(false);
 
   console.log('🛒 Navbar - Current cart:', cart, 'Item count:', cart?.itemCount);
@@ -40,12 +40,11 @@ export default function Navbar() {
       getCart();
       fetchWishlist(user.id).catch(console.error);
       setHasInitializedCart(true);
-    } else if (!isLoggedIn && hasInitializedCart) {
-      console.log('📱 Navbar - User logged out, resetting initialization');
+    } else if (!isLoggedIn) {
       setHasInitializedCart(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn, user?.id]);
+  }, [isLoggedIn, user?.id, hasInitializedCart]);
 
   const navigate = useNavigate();
 

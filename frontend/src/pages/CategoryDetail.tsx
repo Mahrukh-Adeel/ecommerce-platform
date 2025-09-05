@@ -5,32 +5,51 @@ import {
   Grid,
   Typography,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
-import { fetchProductsByCategory } from "../api/productApi";
-import { fetchCategoryById } from "../api/categoryApi";
-import type { ProductData } from "../models/CategoriesData";
-import type { Category } from "../models/Category";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductCard from '../components/ui/ProductCard';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
 import { useAuthStore } from '../store/authStore';
+import { useCategoriesStore } from '../store/categoriesStore';
+import { useProductsStore } from '../store/productsStore';
 
 const CategoryDetail: React.FC = () => {
   const navigate = useNavigate();
   const { categoryId } = useParams<{ categoryId: string }>();
   
-  const [products, setProducts] = useState<ProductData[]>([]);
-  const [category, setCategory] = useState<Category | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    currentCategory: category, 
+    loading: categoryLoading, 
+    error: categoryError, 
+    fetchSingleCategory 
+  } = useCategoriesStore();
+  
+  const { 
+    loading: productsLoading, 
+    fetchProductsByCategory 
+  } = useProductsStore();
   
   const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
   const { addItemToWishlist, isInWishlist } = useWishlistStore();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [products, setProducts] = useState<any[]>([]);
+  
+  console.log('CategoryDetail Debug:', {
+    categoryId,
+    productsCount: products.length,
+    sampleProduct: products[0],
+    category: category?.name
+  });
+  
+  const loading = categoryLoading || productsLoading;
+  const error = categoryError;
 
   const handleAddToCart = async (productId: string) => {
     try {
@@ -62,30 +81,22 @@ const CategoryDetail: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!categoryId) {
-        setError("Category ID is required");
-        setLoading(false);
-        return;
-      }
-
+      if (!categoryId) return;
+      
       try {
-        const [categoryData, productsData] = await Promise.all([
-          fetchCategoryById(categoryId),
+        const [, productsData] = await Promise.all([
+          fetchSingleCategory(categoryId),
           fetchProductsByCategory(categoryId)
         ]);
         
-        setCategory(categoryData);
-        setProducts(Array.isArray(productsData) ? productsData : []);
+        setProducts(productsData);
       } catch (err) {
         console.error('Error fetching category data:', err);
-        setError("Failed to fetch category data");
-      } finally {
-        setLoading(false);
       }
     };
-
+    
     fetchData();
-  }, [categoryId]);
+  }, [categoryId, fetchSingleCategory, fetchProductsByCategory]);
 
   if (loading) {
     return (
@@ -108,9 +119,9 @@ const CategoryDetail: React.FC = () => {
         <NavBar />
         <Container>
           <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography variant="h4" color="error" gutterBottom>
+            <Alert severity="error" sx={{ mb: 3, maxWidth: 600, mx: 'auto' }}>
               {error}
-            </Typography>
+            </Alert>
             <Button variant="contained" onClick={() => navigate('/')}>
               Go Back Home
             </Button>
