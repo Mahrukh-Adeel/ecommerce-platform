@@ -12,6 +12,7 @@ import {
   ListItemText,
   Chip,
   Avatar,
+  Alert,
 } from '@mui/material';
 import {
   CheckCircle,
@@ -73,9 +74,9 @@ const OrderConfirmation: React.FC = () => {
         <NavBar />
         <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
           <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="h6" color="error">
+            <Alert severity="error" sx={{ mb: 3 }}>
               Order not found
-            </Typography>
+            </Alert>
             <Button 
               variant="contained" 
               onClick={() => navigate('/profile')}

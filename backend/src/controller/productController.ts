@@ -67,14 +67,14 @@ export const createProducts = async (req: Request, res: Response) => {
 
     if (!name || !description || !price || !categoryId) {
       return res.status(400).json({ 
-        success: false, 
+        success: false,
         message: "Name, description, price, and categoryId are required" 
       });
     }
 
     if (typeof price !== "number") {
       return res.status(400).json({ 
-        success: false, 
+        success: false,
         message: "Price must be a number" 
       });
     }
@@ -85,13 +85,13 @@ export const createProducts = async (req: Request, res: Response) => {
     await newProduct.populate('categoryId', 'name image');
 
     res.status(201).json({ 
-      success: true, 
-      data: newProduct, 
+      success: true,
+      data: newProduct,
       message: "Product created successfully" 
     });
   } catch (error) {
     res.status(500).json({ 
-      success: false, 
+      success: false,
       message: "Error creating product", 
       error 
     });
@@ -106,8 +106,8 @@ export const updateProduct = async (req: Request, res: Response) => {
         const product = await Product.findById(id);
         if (!product) {
             return res.status(404).json({ 
-                success: false, 
-                message: "Product not found" 
+              success: false,
+              message: "Product not found" 
             });
         }
 
@@ -118,19 +118,17 @@ export const updateProduct = async (req: Request, res: Response) => {
         product.categoryId = categoryId || product.categoryId;
 
         await product.save();
-        
-        await product.populate('categoryId', 'name image');
 
         res.status(200).json({ 
-            success: true, 
-            data: product, 
-            message: "Product updated successfully" 
+          success: true,
+          data: product,
+          message: "Product updated successfully" 
         });
     } catch (error) {
         res.status(500).json({ 
-            success: false, 
-            message: "Error updating product", 
-            error 
+          success: false,
+          message: "Error updating product", 
+          error 
         });
     }
 }
@@ -142,20 +140,20 @@ export const deleteProduct = async (req: Request, res: Response) => {
         const product = await Product.findByIdAndDelete(id);
         if (!product) {
             return res.status(404).json({ 
-                success: false, 
-                message: "Product not found" 
+              success: false,
+              message: "Product not found" 
             });
         }
 
         res.status(200).json({ 
-            success: true, 
-            message: "Product deleted successfully" 
+          success: true,
+          message: "Product deleted successfully" 
         });
     } catch (error) {
         res.status(500).json({ 
-            success: false, 
-            message: "Error deleting product", 
-            error 
+          success: false,
+          message: "Error deleting product", 
+          error 
         });
     }
 };

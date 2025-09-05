@@ -23,21 +23,36 @@ import {
 } from "@mui/icons-material";
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProductWithCategory, type ProductWithCategory } from "../data/productData";
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
+import { useAuthStore } from '../store/authStore';
+import { useProductsStore } from '../store/productsStore';
+import { useUIStore } from '../store/uiStore';
 
 const ProductDetail: React.FC = () => {
-  const { productId } = useParams();
+  const { id: productId } = useParams();
   const navigate = useNavigate();
-  const [product, setProduct] = useState<ProductWithCategory | null>(null);
-  const [selectedImage, setSelectedImage] = useState<number>(0);
-  const [quantity, setQuantity] = useState<number>(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   
+  const { 
+    currentProduct: product, 
+    loading, 
+    error, 
+    fetchSingleProduct 
+  } = useProductsStore();
+  
+  const { 
+    selectedImage, 
+    quantity,
+    setSelectedImage,
+    incrementQuantity,
+    decrementQuantity
+  } = useUIStore();
+  
+  const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
+  const { addItemToWishlist, isInWishlist } = useWishlistStore();
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -49,32 +64,47 @@ const ProductDetail: React.FC = () => {
     }
   };
 
+  const handleAddToWishlist = async () => {
+    if (!product || !user?.id) {
+      console.error('Product or user not available');
+      return;
+    }
+
+    try {
+      if (isInWishlist(product._id)) {
+        console.log('Product already in wishlist');
+        return;
+      }
+      
+      await addItemToWishlist(product._id);
+      console.log('Product added to wishlist:', product._id);
+    } catch (error) {
+      console.error('Failed to add product to wishlist:', error);
+    }
+  };
+
   useEffect(() => {
     const loadProduct = async () => {
       if (!productId) {
-        setError('Product ID is required');
-        setLoading(false);
         return;
       }
 
       try {
-        setLoading(true);
-        const productData = await getProductWithCategory(productId);
-        setProduct(productData);
-        setError(null);
+        await fetchSingleProduct(productId);
       } catch (err) {
-        setError('Failed to load product');
         console.error('Error loading product:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
     loadProduct();
-  }, [productId]);
+  }, [productId, fetchSingleProduct]);
 
   const handleQuantityChange = (change: number) => {
-    setQuantity(Math.max(1, quantity + change));
+    if (change > 0) {
+      incrementQuantity();
+    } else if (change < 0) {
+      decrementQuantity();
+    }
   };
 
   if (loading) {
@@ -201,7 +231,12 @@ const ProductDetail: React.FC = () => {
                 >
                   Add to Cart
                 </Button>
-                <IconButton size="large">
+                <IconButton 
+                  size="large" 
+                  onClick={handleAddToWishlist}
+                  color={product && isInWishlist(product._id) ? "error" : "default"}
+                  title="Add to Wishlist"
+                >
                   <FavoriteBorder />
                 </IconButton>
                 <IconButton size="large">

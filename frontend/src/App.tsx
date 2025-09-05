@@ -10,6 +10,7 @@ import LoginPage from "./pages/Auth/LoginPage";
 import OAuthCallback from "./pages/Auth/OAuthCallback";
 import Profile from "./pages/User/Profile";
 import CartPage from "./pages/User/CartPage";
+import WishlistPage from "./pages/User/WishlistPage";
 import ProductDetail from "./pages/ProductDetail";
 import Dashboard from "./pages/Admin/Dashboard";
 import ManageOrders from "./pages/Admin/ManageOrders";
@@ -43,6 +44,7 @@ function App() {
       <Route path="/checkout/credit-card" element={<CreditCardDetailsPage />} />
       <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
       <Route path="/cart" element={<CartPage />} />
+      <Route path="/wishlist" element={<WishlistPage />} />
       <Route path="/products" element={<Products />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       

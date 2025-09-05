@@ -63,8 +63,12 @@ const ManageOrders: React.FC = () => {
   } = useAdminStore();
 
   useEffect(() => {
+    // Clear any existing success/error messages when component mounts
+    clearErrors();
+    clearSuccess();
+    
     fetchAllOrders();
-  }, [fetchAllOrders]);
+  }, [fetchAllOrders, clearErrors, clearSuccess]);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -181,39 +185,21 @@ const ManageOrders: React.FC = () => {
               View and manage all customer orders
             </Typography>
 
-            {successMessage && !ordersError && (
+            {successMessage && (
               <Alert 
                 severity="success" 
-                variant="filled"
-                sx={{ 
-                  mb: 3,
-                  borderRadius: 2,
-                  '& .MuiAlert-icon': { fontSize: 24 },
-                  '& .MuiAlert-filledSuccess': {
-                    backgroundColor: '#4caf50',
-                    color: '#fff'
-                  }
-                }}
                 onClose={clearSuccess}
+                sx={{ mb: 3, borderRadius: 2 }}
               >
                 {successMessage}
               </Alert>
             )}
 
-            {ordersError && !successMessage && (
+            {ordersError && (
               <Alert 
                 severity="error" 
-                variant="filled"
-                sx={{ 
-                  mb: 3,
-                  borderRadius: 2,
-                  '& .MuiAlert-icon': { fontSize: 24 },
-                  '& .MuiAlert-filledError': {
-                    backgroundColor: '#f44336',
-                    color: '#fff'
-                  }
-                }}
                 onClose={clearErrors}
+                sx={{ mb: 3, borderRadius: 2 }}
               >
                 {ordersError}
               </Alert>

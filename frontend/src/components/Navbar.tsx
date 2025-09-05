@@ -22,26 +22,37 @@ import { useState, useEffect, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
+import { useUIStore } from '../store/uiStore';
 
 export default function Navbar() {
   const { user, isLoggedIn, logout } = useAuthStore();
-  const { getTotalItems, getCart } = useCartStore();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [wishlistCount] = useState(2);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { getCart, cart } = useCartStore();
+  const { getWishlistCount, fetchWishlist } = useWishlistStore();
+  const { searchQuery, setSearchQuery, anchorEl, setAnchorEl } = useUIStore();
+  const [hasInitializedCart, setHasInitializedCart] = useState(false);
+
+  console.log('🛒 Navbar - Current cart:', cart, 'Item count:', cart?.itemCount);
 
   useEffect(() => {
-    if (isLoggedIn && user?.id) {
-      console.log('📱 Navbar - Fetching cart for user:', user.id);
+    if (isLoggedIn && user?.id && !hasInitializedCart) {
+      console.log('📱 Navbar - Initial fetch for user:', user.id);
       getCart();
+      fetchWishlist(user.id).catch(console.error);
+      setHasInitializedCart(true);
+    } else if (!isLoggedIn) {
+      setHasInitializedCart(false);
     }
-  }, [isLoggedIn, user?.id, getCart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, user?.id, hasInitializedCart]);
 
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Searching for:', searchQuery);
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   const goToCategories = (e: MouseEvent<HTMLButtonElement>) => {
@@ -202,10 +213,10 @@ export default function Navbar() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <IconButton 
               color="inherit" 
-              onClick={() => console.log('Open wishlist')}
+              onClick={() => navigate('/wishlist')}
               title="Wishlist"
             >
-              <Badge badgeContent={wishlistCount} color="error">
+              <Badge badgeContent={getWishlistCount()} color="error">
                 <WishlistIcon />
               </Badge>
             </IconButton>
@@ -215,7 +226,7 @@ export default function Navbar() {
               onClick={() => navigate('/cart')}
               title="Shopping Cart"
             >
-              <Badge badgeContent={getTotalItems()} color="error">
+              <Badge badgeContent={cart?.itemCount || 0} color="error">
                 <CartIcon />
               </Badge>
             </IconButton>

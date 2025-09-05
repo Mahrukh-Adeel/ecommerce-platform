@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { getAllOrders, updateOrderStatus, createProduct, updateProduct, deleteProduct } from '../api/adminApi';
 import { fetchProducts } from '../api/productApi';
 import type { AdminState } from '../types/adminState';
+import { getProductErrorMessage, getOrderErrorMessage } from '../utils/errorUtils';
 
 export const useAdminStore = create<AdminState>((set, get) => ({
     orders: [],
@@ -18,7 +19,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
             const orders = await getAllOrders();
             set({ orders, isLoadingOrders: false });
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch orders';
+            const errorMessage = getOrderErrorMessage(error);
             set({ ordersError: errorMessage, isLoadingOrders: false });
         }
     },
@@ -39,7 +40,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
                 }
             }, 5000);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to update order status';
+            const errorMessage = getOrderErrorMessage(error);
             set({ ordersError: errorMessage, successMessage: null });
         }
     },
@@ -50,7 +51,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
             const products = await fetchProducts();
             set({ products: Array.isArray(products) ? products : [], isLoadingProducts: false });
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch products';
+            const errorMessage = getProductErrorMessage(error);
             set({ productsError: errorMessage, isLoadingProducts: false });
         }
     },
@@ -60,16 +61,16 @@ export const useAdminStore = create<AdminState>((set, get) => ({
         try {
             const newProduct = await createProduct(productData);
             const products = [...get().products, newProduct];
-            set({ products, isLoadingProducts: false, successMessage: 'Product added successfully!' });
+            set({ products, isLoadingProducts: false, successMessage: 'Product created successfully!' });
             
             setTimeout(() => {
                 const currentState = get();
-                if (currentState.successMessage === 'Product added successfully!') {
+                if (currentState.successMessage === 'Product created successfully!') {
                     set({ successMessage: null });
                 }
             }, 5000);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to create product';
+            const errorMessage = getProductErrorMessage(error);
             set({ productsError: errorMessage, isLoadingProducts: false, successMessage: null });
         }
     },
@@ -95,7 +96,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
                 }
             }, 5000);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to update product';
+            const errorMessage = getProductErrorMessage(error);
             set({ 
                 isLoadingProducts: false,
                 productsError: errorMessage, 
@@ -124,7 +125,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
                 }
             }, 5000);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to delete product';
+            const errorMessage = getProductErrorMessage(error);
             set({ 
                 isLoadingProducts: false,
                 productsError: errorMessage, 

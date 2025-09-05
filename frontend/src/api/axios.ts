@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
+import { getNetworkErrorMessage } from "../utils/errorUtils";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -82,9 +83,10 @@ api.interceptors.response.use(
                         throw new Error('Invalid refresh response');
                     }
                 } catch (refreshError) {
-                    console.log('Token refresh failed:', refreshError);
+                    console.log('🔄❌ Token refresh failed:', refreshError);
                     processQueue(refreshError, null);
                     
+                    console.log('🚪 Clearing auth due to refresh failure');
                     useAuthStore.getState().clearAuth();
                     
                     return Promise.reject(refreshError);

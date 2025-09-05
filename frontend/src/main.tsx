@@ -1,6 +1,5 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
 import { BrowserRouter } from "react-router-dom";
 import App from './App.tsx'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -53,6 +52,28 @@ const theme = createTheme({
       styleOverrides: {
         body: {
           backgroundColor: '#FEEFE5', 
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          '&.MuiAlert-standardSuccess': {
+            backgroundColor: '#d4edda',
+            color: '#155724',
+            border: '1px solid #c3e6cb',
+            '& .MuiAlert-icon': {
+              color: '#155724',
+            },
+          },
+          '&.MuiAlert-standardError': {
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            border: '1px solid #f5c6cb',
+            '& .MuiAlert-icon': {
+              color: '#721c24',
+            },
+          },
         },
       },
     },

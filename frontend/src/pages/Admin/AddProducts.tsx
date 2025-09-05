@@ -236,48 +236,22 @@ const AddProducts: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Alert Messages */}
-          {successMessage && !productsError && (
+          {/* Success and Error Messages */}
+          {successMessage && (
             <Alert 
               severity="success" 
-              variant="filled"
-              sx={{ 
-                mb: 3, 
-                borderRadius: 2,
-                backgroundColor: 'success.main',
-                color: 'success.contrastText',
-                '& .MuiAlert-icon': { 
-                  fontSize: 24,
-                  color: 'inherit'
-                },
-                '& .MuiAlert-message': {
-                  color: 'inherit'
-                }
-              }}
               onClose={clearSuccess}
+              sx={{ mb: 3, borderRadius: 2 }}
             >
               {successMessage}
             </Alert>
           )}
 
-          {productsError && !successMessage && (
+          {productsError && (
             <Alert 
               severity="error" 
-              variant="filled"
-              sx={{ 
-                mb: 3, 
-                borderRadius: 2,
-                backgroundColor: 'error.main',
-                color: 'error.contrastText',
-                '& .MuiAlert-icon': { 
-                  fontSize: 24,
-                  color: 'inherit'
-                },
-                '& .MuiAlert-message': {
-                  color: 'inherit'
-                }
-              }} 
               onClose={clearErrors}
+              sx={{ mb: 3, borderRadius: 2 }}
             >
               {productsError}
             </Alert>

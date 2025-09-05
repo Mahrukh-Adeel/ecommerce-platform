@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { fetchCart, addToCart, updateCartItem, removeFromCart, clearCart } from "../api/cartApi";
 import type { CartState } from "../types/cart";
+import { getErrorMessage } from "../utils/errorUtils";
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -13,12 +14,15 @@ export const useCartStore = create<CartState>()(
       getCart: async () => {
         set({ isLoading: true, error: null });
         try {
+          console.log('🔄 Fetching cart from server...');
           const cart = await fetchCart();
+          console.log('📦 Cart fetched:', cart);
           set({ cart, isLoading: false });
         } catch (error) {
           console.error('Failed to fetch cart:', error);
+          const errorMessage = getErrorMessage(error);
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to fetch cart',
+            error: errorMessage,
             isLoading: false 
           });
         }
@@ -28,14 +32,18 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true, error: null });
         try {
           const cart = await addToCart({ productId, quantity });
+          console.log('✅ Cart after adding item:', cart);
+          console.log('✅ Item count in returned cart:', cart?.itemCount);
+          console.log('✅ Items array length:', cart?.items?.length);
           set({ cart, isLoading: false });
         } catch (error) {
           console.error('Failed to add item to cart:', error);
+          const errorMessage = getErrorMessage(error);
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to add item to cart',
+            error: errorMessage,
             isLoading: false 
           });
-          throw error;
+          throw new Error(errorMessage);
         }
       },
 
@@ -57,6 +65,7 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true, error: null });
         try {
           const cart = await removeFromCart(productId);
+          console.log('Cart after removing item:', cart);
           set({ cart, isLoading: false });
         } catch (error) {
           console.error('Failed to remove cart item:', error);

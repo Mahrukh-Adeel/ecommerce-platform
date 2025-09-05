@@ -6,7 +6,7 @@ export interface User extends mongoose.Document {
   email: string;
   phone?: string;
   address?: string;
-  password?: string; // Make optional for OAuth users
+  password?: string; // Optional for OAuth users
   joinDate?: Date;
   wishlist?: mongoose.Types.ObjectId[]; // Array of Product IDs
   orders?: mongoose.Types.ObjectId[];   // Array of Order IDs
@@ -19,6 +19,8 @@ export interface User extends mongoose.Document {
   avatar?: string;
   provider?: "local" | "google";
 }
+
+export type UserDocument = User;
 
 const UserSchema = new Schema<User>({
   name: { type: String, required: true },

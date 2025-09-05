@@ -11,26 +11,46 @@ import {
   TextField,
   Typography,
   CircularProgress,
+  Alert,
   type SelectChangeEvent,
 } from "@mui/material";
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Search } from "@mui/icons-material";
-import { fetchProducts } from "../api/productApi";
-import type { ProductData } from "../models/CategoriesData";
 import ProductCard from '../components/ui/ProductCard';
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
+import { useAuthStore } from '../store/authStore';
+import { useProductsStore } from '../store/productsStore';
 
 const Products: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("name");
-  const [allProducts, setAllProducts] = useState<ProductData[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<ProductData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
   
+  const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
+  const { addItemToWishlist, isInWishlist } = useWishlistStore();
+  
+  const { 
+    allProducts, 
+    filteredProducts,
+    loading, 
+    error,
+    searchTerm,
+    sortBy,
+    fetchAllProducts,
+    setSearchTerm,
+    setSortBy,
+    filterAndSortProducts
+  } = useProductsStore();
+
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setSearchTerm(urlSearch);
+    }
+  }, [searchParams, setSearchTerm]);
 
   const handleAddToCart = async (productId: string) => {
     try {
@@ -41,59 +61,42 @@ const Products: React.FC = () => {
     }
   };
 
-  const handleAddToWishlist = (productId: string) => {
-    console.log('Add to wishlist:', productId);
-    // TODO: Implement wishlist functionality
+  const handleAddToWishlist = async (productId: string) => {
+    if (!user?.id) {
+      console.error('User not logged in');
+      return;
+    }
+
+    try {
+      if (isInWishlist(productId)) {
+        console.log('Product already in wishlist');
+        return;
+      }
+      
+      await addItemToWishlist(productId);
+      console.log('Product added to wishlist:', productId);
+    } catch (error) {
+      console.error('Failed to add product to wishlist:', error);
+    }
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const products = await fetchProducts();
-        console.log('Fetched products:', products); 
-        
-        if (Array.isArray(products)) {
-          setAllProducts(products);
-          setFilteredProducts(products);
-        } else {
-          console.error('Products data is not an array:', products);
-          setAllProducts([]);
-          setFilteredProducts([]);
-        }
+        await fetchAllProducts();
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError("Failed to fetch products");
-      } finally {
-        setLoading(false);
       }
     };
-    fetchData();
-  }, []);
+    
+    if (allProducts.length === 0) {
+      fetchData();
+    }
+  }, [fetchAllProducts, allProducts.length]);
 
   useEffect(() => {
-    let filtered = allProducts;
-
-    if (searchTerm) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case "name":
-          return a.name.localeCompare(b.name);
-        case "price-low":
-          return a.price - b.price;
-        case "price-high":
-          return b.price - a.price;
-        default:
-          return 0;
-      }
-    });
-
-    setFilteredProducts(sorted);
-  }, [allProducts, searchTerm, sortBy]);
+    filterAndSortProducts();
+  }, [searchTerm, sortBy, allProducts, filterAndSortProducts]);
 
   const handleSortChange = (e: SelectChangeEvent<string>) => {
     setSortBy(e.target.value);
@@ -118,9 +121,11 @@ const Products: React.FC = () => {
       <>
         <NavBar />
         <Container>
-          <Typography align="center" color="error">
-            {error}
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Alert severity="error" sx={{ maxWidth: 600 }}>
+              {error}
+            </Alert>
+          </Box>
         </Container>
         <Footer />
       </>

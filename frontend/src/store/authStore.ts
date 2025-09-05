@@ -4,6 +4,7 @@ import type { UserInfo } from '../models/UserInfo';
 import { signupUser, loginUser, initiateGoogleAuth, handleGoogleCallback, getCurrentUser, logoutUser } from '../api/authApi';
 import { updateUserProfile } from '../api/userApi';
 import type { AuthState } from '../types/authState';
+import { getAuthErrorMessage } from '../utils/errorUtils';
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -48,8 +49,9 @@ export const useAuthStore = create<AuthState>()(
             throw new Error(response.message || 'Signup failed');
           }
         } catch (error) {
+          const friendlyMessage = getAuthErrorMessage(error);
           console.error('Signup failed:', error);
-          throw error;
+          throw new Error(friendlyMessage);
         }
       },
 
@@ -84,8 +86,9 @@ export const useAuthStore = create<AuthState>()(
             throw new Error(response.message || 'Login failed');
           }
         } catch (error) {
+          const friendlyMessage = getAuthErrorMessage(error);
           console.error('Login failed:', error);
-          throw error;
+          throw new Error(friendlyMessage);
         }
       },
 
@@ -151,36 +154,56 @@ export const useAuthStore = create<AuthState>()(
       initializeAuth: async () => {
         try {
           const token = localStorage.getItem('accessToken');
+          const refreshToken = localStorage.getItem('refreshToken');
           const persistedUser = useAuthStore.getState().user;
           
           if (token) {
-            set({ accessToken: token });
+            set({ accessToken: token, refreshToken: refreshToken || null });
             
-            const response = await getCurrentUser();
-            
-            console.log('👤 Current user response:', response);
-            
-            if (response.success && response.user) {
-              const user: UserInfo = {
-                id: response.user.id,
-                email: response.user.email,
-                name: response.user.name,
-                phone: response.user.phone,
-                address: response.user.address,
-                role: response.user.role,
-                token: token
-              };
+            try {
+              const response = await getCurrentUser();
               
-              if (persistedUser && String(persistedUser.id) !== String(response.user.id)) {
-                console.log('⚠️ User ID mismatch detected! Clearing old data and using new user data');
+              if (response.success && response.user) {
+                const user: UserInfo = {
+                  id: response.user.id,
+                  email: response.user.email,
+                  name: response.user.name,
+                  phone: response.user.phone,
+                  address: response.user.address,
+                  role: response.user.role,
+                  token: token
+                };
+                
+                if (persistedUser && String(persistedUser.id) !== String(response.user.id)) {
+                  // User ID mismatch detected, using new user data
+                }
+                
+                set({ user, isLoggedIn: true });
+              } else {
+                throw new Error('Invalid user data');
               }
+            } catch (apiError: unknown) {
+              // If getCurrentUser fails with 401, the axios interceptor will try to refresh
+              // If refresh also fails, it will clear auth automatically
               
-              set({ user, isLoggedIn: true });
-            } else {
-              throw new Error('Invalid user data');
+              // Only clear auth if it's not a token refresh scenario
+              if (apiError && typeof apiError === 'object' && 'response' in apiError) {
+                const error = apiError as { response?: { status?: number } };
+                if (error.response?.status !== 401) {
+                  throw apiError;
+                }
+              } else {
+                throw apiError;
+              }
+              // For 401 errors, let the axios interceptor handle token refresh
             }
           } else {
-            console.log('No token found, user not authenticated');
+            set({ 
+              user: null, 
+              isLoggedIn: false, 
+              accessToken: null, 
+              refreshToken: null 
+            });
           }
         } catch (error) {
           console.error('Auth initialization failed:', error);
