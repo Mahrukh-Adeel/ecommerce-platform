@@ -16,7 +16,13 @@ export const getWishlist = async (userId: string): Promise<WishlistItem[]> => {
 
 export const addToWishlist = async (productId: string): Promise<WishlistItem> => {
   try {
+    console.log('🔍 Wishlist API - Adding product ID:', productId);
+    console.log('🔍 Request payload:', { productId });
+    
     const response = await api.post<WishlistResponse>('/wishlist/add', { productId });
+    
+    console.log('🔍 Wishlist API response:', response.data);
+    
     if (response.data.success && response.data.data && !Array.isArray(response.data.data)) {
       return response.data.data;
     }

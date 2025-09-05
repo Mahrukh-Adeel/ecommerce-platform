@@ -40,11 +40,12 @@ export default function Navbar() {
       getCart();
       fetchWishlist(user.id).catch(console.error);
       setHasInitializedCart(true);
-    } else if (!isLoggedIn) {
+    } else if (!isLoggedIn && hasInitializedCart) {
+      console.log('📱 Navbar - User logged out, resetting initialization');
       setHasInitializedCart(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn, user?.id, hasInitializedCart]);
+  }, [isLoggedIn, user?.id]);
 
   const navigate = useNavigate();
 

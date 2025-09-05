@@ -31,7 +31,7 @@ import { useWishlistStore } from '../store/wishlistStore';
 import { useAuthStore } from '../store/authStore';
 
 const ProductDetail: React.FC = () => {
-  const { productId } = useParams();
+  const { id: productId } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState<ProductWithCategory | null>(null);
   const [selectedImage, setSelectedImage] = useState<number>(0);
