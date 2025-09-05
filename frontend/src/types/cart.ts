@@ -15,4 +15,5 @@ export type CartState = {
     getTotalItems: () => number;
     getTotalPrice: () => number;
     getCartItem: (productId: string) => CartItem | undefined;
+    clearCartState: () => void;
 };

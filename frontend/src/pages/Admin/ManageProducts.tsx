@@ -221,7 +221,7 @@ const ManageProducts: React.FC = () => {
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           minHeight: "100vh",
-          bgcolor: "grey.50",
+          bgcolor: "background.default",
         }}
       >
         <Toolbar />

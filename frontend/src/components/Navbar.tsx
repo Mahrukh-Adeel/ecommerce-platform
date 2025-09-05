@@ -93,6 +93,14 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await logout();
+      
+      // Clear cart and wishlist stores after logout
+      const { clearCartState } = useCartStore.getState();
+      const { clearWishlist } = useWishlistStore.getState();
+      
+      clearCartState();
+      clearWishlist();
+      
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);

@@ -103,6 +103,10 @@ export const useCartStore = create<CartState>()(
         const { cart } = get();
         return cart?.items.find(item => item.productId._id === productId);
       },
+
+      clearCartState: () => {
+        set({ cart: null, error: null, isLoading: false });
+      },
     }),
     {
       name: "cart-storage",
