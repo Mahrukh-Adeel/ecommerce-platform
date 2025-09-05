@@ -15,8 +15,6 @@ import { useEffect } from "react";
 import { Search } from "@mui/icons-material";
 import ProductCard from '../components/ui/ProductCard';
 import { useCartStore } from '../store/cartStore';
-import { useWishlistStore } from '../store/wishlistStore';
-import { useAuthStore } from '../store/authStore';
 import { useCategoriesStore } from '../store/categoriesStore';
 
 const Category: React.FC = () => {
@@ -29,9 +27,7 @@ const Category: React.FC = () => {
     fetchCategoriesWithProducts 
   } = useCategoriesStore();
   
-  const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
-  const { addItemToWishlist, isInWishlist } = useWishlistStore();
 
   const handleAddToCart = async (productId: string) => {
     try {
@@ -39,25 +35,6 @@ const Category: React.FC = () => {
       console.log('Product added to cart:', productId);
     } catch (error) {
       console.error('Failed to add product to cart:', error);
-    }
-  };
-
-  const handleAddToWishlist = async (productId: string) => {
-    if (!user?.id) {
-      console.error('User not logged in');
-      return;
-    }
-
-    try {
-      if (isInWishlist(productId)) {
-        console.log('Product already in wishlist');
-        return;
-      }
-      
-      await addItemToWishlist(productId);
-      console.log('Product added to wishlist:', productId);
-    } catch (error) {
-      console.error('Failed to add product to wishlist:', error);
     }
   };
 
@@ -176,7 +153,6 @@ const Category: React.FC = () => {
                     <ProductCard 
                       product={product} 
                       onAddToCart={handleAddToCart} 
-                      onAddToWishlist={handleAddToWishlist} 
                     />
                   </Grid>
                 ))}

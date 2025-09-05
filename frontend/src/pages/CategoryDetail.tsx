@@ -13,8 +13,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductCard from '../components/ui/ProductCard';
 import { useCartStore } from '../store/cartStore';
-import { useWishlistStore } from '../store/wishlistStore';
-import { useAuthStore } from '../store/authStore';
 import { useCategoriesStore } from '../store/categoriesStore';
 import { useProductsStore } from '../store/productsStore';
 
@@ -34,9 +32,7 @@ const CategoryDetail: React.FC = () => {
     fetchProductsByCategory 
   } = useProductsStore();
   
-  const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
-  const { addItemToWishlist, isInWishlist } = useWishlistStore();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [products, setProducts] = useState<any[]>([]);
@@ -57,25 +53,6 @@ const CategoryDetail: React.FC = () => {
       console.log('Product added to cart:', productId);
     } catch (error) {
       console.error('Failed to add product to cart:', error);
-    }
-  };
-
-  const handleAddToWishlist = async (productId: string) => {
-    if (!user?.id) {
-      console.error('User not logged in');
-      return;
-    }
-
-    try {
-      if (isInWishlist(productId)) {
-        console.log('Product already in wishlist');
-        return;
-      }
-      
-      await addItemToWishlist(productId);
-      console.log('Product added to wishlist:', productId);
-    } catch (error) {
-      console.error('Failed to add product to wishlist:', error);
     }
   };
 
@@ -171,7 +148,6 @@ const CategoryDetail: React.FC = () => {
                 <ProductCard 
                   product={product} 
                   onAddToCart={handleAddToCart} 
-                  onAddToWishlist={handleAddToWishlist} 
                 />
               </Grid>
             ))}

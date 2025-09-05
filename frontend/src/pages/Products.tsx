@@ -21,16 +21,12 @@ import { useSearchParams } from "react-router-dom";
 import { Search } from "@mui/icons-material";
 import ProductCard from '../components/ui/ProductCard';
 import { useCartStore } from '../store/cartStore';
-import { useWishlistStore } from '../store/wishlistStore';
-import { useAuthStore } from '../store/authStore';
 import { useProductsStore } from '../store/productsStore';
 
 const Products: React.FC = () => {
   const [searchParams] = useSearchParams();
   
-  const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
-  const { addItemToWishlist, isInWishlist } = useWishlistStore();
   
   const { 
     allProducts, 
@@ -58,25 +54,6 @@ const Products: React.FC = () => {
       console.log('Product added to cart:', productId);
     } catch (error) {
       console.error('Failed to add product to cart:', error);
-    }
-  };
-
-  const handleAddToWishlist = async (productId: string) => {
-    if (!user?.id) {
-      console.error('User not logged in');
-      return;
-    }
-
-    try {
-      if (isInWishlist(productId)) {
-        console.log('Product already in wishlist');
-        return;
-      }
-      
-      await addItemToWishlist(productId);
-      console.log('Product added to wishlist:', productId);
-    } catch (error) {
-      console.error('Failed to add product to wishlist:', error);
     }
   };
 
@@ -210,7 +187,6 @@ const Products: React.FC = () => {
                 <ProductCard 
                   product={product} 
                   onAddToCart={handleAddToCart} 
-                  onAddToWishlist={handleAddToWishlist} 
                 />
               </Grid>
             ))}
