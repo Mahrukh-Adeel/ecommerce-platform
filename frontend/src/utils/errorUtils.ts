@@ -1,7 +1,3 @@
-/**
- * Utility functions for handling and formatting errors
- */
-
 export interface ApiError {
   response?: {
     status?: number;
@@ -14,51 +10,36 @@ export interface ApiError {
   code?: string;
 }
 
-/**
- * Convert technical errors to user-friendly messages
- */
 export const getErrorMessage = (error: unknown): string => {
-  // Handle axios/API errors
   if (typeof error === 'object' && error !== null && 'response' in error) {
     const apiError = error as ApiError;
     
-    // Check for custom error message from backend
     if (apiError.response?.data?.message) {
       return apiError.response.data.message;
     }
     
-    // Handle specific HTTP status codes
     if (apiError.response?.status) {
       return getHttpStatusMessage(apiError.response.status);
     }
   }
   
-  // Handle Error objects
   if (error instanceof Error) {
     return error.message || 'An unexpected error occurred';
   }
   
-  // Handle string errors
   if (typeof error === 'string') {
     return error;
   }
   
-  // Fallback for unknown error types
   return 'An unexpected error occurred. Please try again.';
 };
 
-/**
- * Get user-friendly messages for HTTP status codes
- */
 export const getHttpStatusMessage = (status: number): string => {
   switch (status) {
-    // Authentication errors
     case 401:
       return 'Invalid credentials. Please check your email and password.';
     case 403:
       return 'Access denied. You don\'t have permission to perform this action.';
-    
-    // Client errors
     case 400:
       return 'Invalid request. Please check your input and try again.';
     case 404:
@@ -94,13 +75,9 @@ export const getHttpStatusMessage = (status: number): string => {
   }
 };
 
-/**
- * Get user-friendly messages for authentication-specific errors
- */
 export const getAuthErrorMessage = (error: unknown): string => {
   const message = getErrorMessage(error);
   
-  // Check for common authentication error patterns
   if (message.toLowerCase().includes('invalid credentials') || 
       message.toLowerCase().includes('unauthorized') ||
       message.toLowerCase().includes('wrong password')) {
@@ -130,13 +107,9 @@ export const getAuthErrorMessage = (error: unknown): string => {
   return message;
 };
 
-/**
- * Get user-friendly messages for product/admin-specific errors
- */
 export const getProductErrorMessage = (error: unknown): string => {
   const message = getErrorMessage(error);
   
-  // Check for common product error patterns
   if (message.toLowerCase().includes('product not found')) {
     return 'Product not found. It may have been removed or is no longer available.';
   }
@@ -162,13 +135,9 @@ export const getProductErrorMessage = (error: unknown): string => {
   return message;
 };
 
-/**
- * Get user-friendly messages for order-specific errors
- */
 export const getOrderErrorMessage = (error: unknown): string => {
   const message = getErrorMessage(error);
   
-  // Check for common order error patterns
   if (message.toLowerCase().includes('order not found')) {
     return 'Order not found. Please check your order number.';
   }
@@ -190,9 +159,6 @@ export const getOrderErrorMessage = (error: unknown): string => {
   return message;
 };
 
-/**
- * Get user-friendly messages for network/connectivity errors
- */
 export const getNetworkErrorMessage = (error: unknown): string => {
   if (typeof error === 'object' && error !== null && 'code' in error) {
     const networkError = error as { code?: string };
@@ -214,13 +180,9 @@ export const getNetworkErrorMessage = (error: unknown): string => {
   return getErrorMessage(error);
 };
 
-/**
- * Log errors for debugging while showing user-friendly messages
- */
 export const logAndGetErrorMessage = (error: unknown, context?: string): string => {
   const friendlyMessage = getErrorMessage(error);
   
-  // Log the technical error for debugging
   if (context) {
     console.error(`Error in ${context}:`, error);
   } else {

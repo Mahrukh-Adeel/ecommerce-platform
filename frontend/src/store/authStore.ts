@@ -5,6 +5,7 @@ import { signupUser, loginUser, initiateGoogleAuth, handleGoogleCallback, getCur
 import { updateUserProfile } from '../api/userApi';
 import type { AuthState } from '../types/authState';
 import { getAuthErrorMessage } from '../utils/errorUtils';
+import TokenManager from '../utils/tokenManager';
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -20,9 +21,13 @@ export const useAuthStore = create<AuthState>()(
         if (refreshToken) {
           localStorage.setItem('refreshToken', refreshToken);
         }
+        
+        TokenManager.getInstance().initializeTokenManagement();
       },
 
       clearAuth: () => {
+        TokenManager.getInstance().clearTokenManagement();
+        
         set({ 
           user: null, 
           isLoggedIn: false, 
@@ -179,6 +184,9 @@ export const useAuthStore = create<AuthState>()(
                 }
                 
                 set({ user, isLoggedIn: true });
+                
+                // Initialize automatic token management after successful auth
+                TokenManager.getInstance().initializeTokenManagement();
               } else {
                 throw new Error('Invalid user data');
               }
@@ -207,7 +215,6 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           console.error('Auth initialization failed:', error);
-          // Clear invalid tokens and state
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
           set({ 

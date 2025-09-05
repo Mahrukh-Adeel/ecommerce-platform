@@ -88,7 +88,7 @@ const WishlistPage: React.FC = () => {
       <Navbar />
       <Container sx={{ py: 4, minHeight: '80vh' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-          <FavoriteOutlined sx={{ mr: 2, color: 'primary.main' }} />
+          <FavoriteOutlined sx={{ mr: 2, color: 'primary.main', fontSize: 40 }} />
           <Typography variant="h4" component="h1">
             My Wishlist
           </Typography>

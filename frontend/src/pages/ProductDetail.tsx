@@ -14,6 +14,7 @@ import {
 import {
   ShoppingCart,
   FavoriteBorder,
+  Favorite,
   Share,
   Add,
   Remove,
@@ -23,7 +24,8 @@ import {
 } from "@mui/icons-material";
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useEffect } from "react";
+import LoginRequiredAlert from "../components/ui/LoginRequiredAlert";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
@@ -50,12 +52,23 @@ const ProductDetail: React.FC = () => {
     decrementQuantity
   } = useUIStore();
   
-  const { user } = useAuthStore();
+  const { isLoggedIn } = useAuthStore();
   const { addItemToCart } = useCartStore();
   const { addItemToWishlist, isInWishlist } = useWishlistStore();
 
+  // Alert state management
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const handleAddToCart = async () => {
     if (!product) return;
+    
+    if (!isLoggedIn) {
+      setAlertMessage("Please log in to add items to your cart");
+      setShowLoginAlert(true);
+      return;
+    }
+    
     try {
       await addItemToCart(product._id, quantity);
       console.log('Product added to cart:', product._id, 'Quantity:', quantity);
@@ -65,8 +78,11 @@ const ProductDetail: React.FC = () => {
   };
 
   const handleAddToWishlist = async () => {
-    if (!product || !user?.id) {
-      console.error('Product or user not available');
+    if (!product) return;
+    
+    if (!isLoggedIn) {
+      setAlertMessage("Please log in to save items to your wishlist");
+      setShowLoginAlert(true);
       return;
     }
 
@@ -80,6 +96,31 @@ const ProductDetail: React.FC = () => {
       console.log('Product added to wishlist:', product._id);
     } catch (error) {
       console.error('Failed to add product to wishlist:', error);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!product) return;
+    
+    const shareData = {
+      title: product.name,
+      text: `Check out this amazing product: ${product.name}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        console.log('Product shared successfully');
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        // You could show a toast notification here
+        console.log('Product URL copied to clipboard');
+        alert('Product URL copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing product:', error);
     }
   };
 
@@ -237,9 +278,13 @@ const ProductDetail: React.FC = () => {
                   color={product && isInWishlist(product._id) ? "error" : "default"}
                   title="Add to Wishlist"
                 >
-                  <FavoriteBorder />
+                  {product && isInWishlist(product._id) ? <Favorite /> : <FavoriteBorder />}
                 </IconButton>
-                <IconButton size="large">
+                <IconButton 
+                  size="large"
+                  onClick={handleShare}
+                  title="Share Product"
+                >
                   <Share />
                 </IconButton>
               </Box>
@@ -270,6 +315,13 @@ const ProductDetail: React.FC = () => {
             </Box>
           </Grid>
         </Grid>
+
+        {/* Login Required Alert */}
+        <LoginRequiredAlert 
+          open={showLoginAlert} 
+          onClose={() => setShowLoginAlert(false)}
+          message={alertMessage}
+        />
       </Container>
       <Footer />
     </>
