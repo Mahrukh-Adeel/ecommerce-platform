@@ -1,39 +1,35 @@
 {
   "compilerOptions": {
     /* File Layout */
-    "rootDir": "./", // legacy, will be replaced below
+    "rootDir": "./src",
     "outDir": "./dist",
 
     /* Module + Target for Node.js (ESM style imports) */
-    "module": "nodenext", 
+    "module": "esnext", 
     "target": "es2020",
+    "moduleResolution": "node",
 
     /* Node types */
-    "lib": ["esnext"],
+    "lib": ["es2020"],
     "types": ["node"],
 
     /* Output Helpers */
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
 
     /* Strict Type Checking */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    /* React Support (for TSX files in frontend) */
-    "jsx": "react-jsx",
-
     /* Module Settings */
-    "verbatimModuleSyntax": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "scripts"],
-  "exclude": ["node_modules", "dist"],
-  "ts-node": {
-    "esm": true
-  }
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "scripts"]
 }
