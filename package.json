@@ -2,5 +2,8 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
     "@types/passport-local": "^1.0.38"
+  },
+  "dependencies": {
+    "mongoose": "^8.18.0"
   }
 }

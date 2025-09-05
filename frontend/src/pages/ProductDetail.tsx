@@ -27,6 +27,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductWithCategory, type ProductWithCategory } from "../data/productData";
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
+import { useAuthStore } from '../store/authStore';
 
 const ProductDetail: React.FC = () => {
   const { productId } = useParams();
@@ -37,7 +39,9 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
+  const { addItemToWishlist, isInWishlist } = useWishlistStore();
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -46,6 +50,25 @@ const ProductDetail: React.FC = () => {
       console.log('Product added to cart:', product._id, 'Quantity:', quantity);
     } catch (error) {
       console.error('Failed to add product to cart:', error);
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    if (!product || !user?.id) {
+      console.error('Product or user not available');
+      return;
+    }
+
+    try {
+      if (isInWishlist(product._id)) {
+        console.log('Product already in wishlist');
+        return;
+      }
+      
+      await addItemToWishlist(product._id);
+      console.log('Product added to wishlist:', product._id);
+    } catch (error) {
+      console.error('Failed to add product to wishlist:', error);
     }
   };
 
@@ -201,7 +224,12 @@ const ProductDetail: React.FC = () => {
                 >
                   Add to Cart
                 </Button>
-                <IconButton size="large">
+                <IconButton 
+                  size="large" 
+                  onClick={handleAddToWishlist}
+                  color={product && isInWishlist(product._id) ? "error" : "default"}
+                  title="Add to Wishlist"
+                >
                   <FavoriteBorder />
                 </IconButton>
                 <IconButton size="large">

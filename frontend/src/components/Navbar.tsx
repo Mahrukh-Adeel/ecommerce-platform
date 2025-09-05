@@ -22,26 +22,30 @@ import { useState, useEffect, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
 
 export default function Navbar() {
   const { user, isLoggedIn, logout } = useAuthStore();
   const { getTotalItems, getCart } = useCartStore();
+  const { getWishlistCount, fetchWishlist } = useWishlistStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [wishlistCount] = useState(2);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
     if (isLoggedIn && user?.id) {
       console.log('📱 Navbar - Fetching cart for user:', user.id);
       getCart();
+      fetchWishlist(user.id).catch(console.error);
     }
-  }, [isLoggedIn, user?.id, getCart]);
+  }, [isLoggedIn, user?.id, getCart, fetchWishlist]);
 
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Searching for:', searchQuery);
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   const goToCategories = (e: MouseEvent<HTMLButtonElement>) => {
@@ -202,10 +206,10 @@ export default function Navbar() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <IconButton 
               color="inherit" 
-              onClick={() => console.log('Open wishlist')}
+              onClick={() => navigate('/wishlist')}
               title="Wishlist"
             >
-              <Badge badgeContent={wishlistCount} color="error">
+              <Badge badgeContent={getWishlistCount()} color="error">
                 <WishlistIcon />
               </Badge>
             </IconButton>

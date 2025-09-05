@@ -22,7 +22,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearAuth: () => {
-        console.log('🚪 Clearing authentication state');
         set({ 
           user: null, 
           isLoggedIn: false, 
@@ -161,8 +160,6 @@ export const useAuthStore = create<AuthState>()(
             try {
               const response = await getCurrentUser();
               
-              console.log('👤 Current user response:', response);
-              
               if (response.success && response.user) {
                 const user: UserInfo = {
                   id: response.user.id,
@@ -175,7 +172,7 @@ export const useAuthStore = create<AuthState>()(
                 };
                 
                 if (persistedUser && String(persistedUser.id) !== String(response.user.id)) {
-                  console.log('⚠️ User ID mismatch detected! Clearing old data and using new user data');
+                  // User ID mismatch detected, using new user data
                 }
                 
                 set({ user, isLoggedIn: true });
@@ -185,7 +182,6 @@ export const useAuthStore = create<AuthState>()(
             } catch (apiError: unknown) {
               // If getCurrentUser fails with 401, the axios interceptor will try to refresh
               // If refresh also fails, it will clear auth automatically
-              console.log('getCurrentUser failed:', apiError);
               
               // Only clear auth if it's not a token refresh scenario
               if (apiError && typeof apiError === 'object' && 'response' in apiError) {
@@ -199,7 +195,6 @@ export const useAuthStore = create<AuthState>()(
               // For 401 errors, let the axios interceptor handle token refresh
             }
           } else {
-            console.log('No token found, user not authenticated');
             set({ 
               user: null, 
               isLoggedIn: false, 

@@ -16,13 +16,17 @@ import {
 import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Search } from "@mui/icons-material";
 import { fetchProducts } from "../api/productApi";
 import type { ProductData } from "../models/CategoriesData";
 import ProductCard from '../components/ui/ProductCard';
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
+import { useAuthStore } from '../store/authStore';
 
 const Products: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("name");
   const [allProducts, setAllProducts] = useState<ProductData[]>([]);
@@ -30,7 +34,17 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  const { user } = useAuthStore();
   const { addItemToCart } = useCartStore();
+  const { addItemToWishlist, isInWishlist } = useWishlistStore();
+
+  // Initialize search term from URL params
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setSearchTerm(urlSearch);
+    }
+  }, [searchParams]);
 
   const handleAddToCart = async (productId: string) => {
     try {
@@ -41,9 +55,23 @@ const Products: React.FC = () => {
     }
   };
 
-  const handleAddToWishlist = (productId: string) => {
-    console.log('Add to wishlist:', productId);
-    // TODO: Implement wishlist functionality
+  const handleAddToWishlist = async (productId: string) => {
+    if (!user?.id) {
+      console.error('User not logged in');
+      return;
+    }
+
+    try {
+      if (isInWishlist(productId)) {
+        console.log('Product already in wishlist');
+        return;
+      }
+      
+      await addItemToWishlist(productId);
+      console.log('Product added to wishlist:', productId);
+    } catch (error) {
+      console.error('Failed to add product to wishlist:', error);
+    }
   };
 
   useEffect(() => {

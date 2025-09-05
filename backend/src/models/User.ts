@@ -20,6 +20,8 @@ export interface User extends mongoose.Document {
   provider?: "local" | "google";
 }
 
+export type UserDocument = User;
+
 const UserSchema = new Schema<User>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },

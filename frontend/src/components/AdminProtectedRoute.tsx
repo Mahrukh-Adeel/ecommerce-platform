@@ -20,11 +20,8 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
         setError(null);
         
         const token = localStorage.getItem('accessToken');
-        console.log('🔒 AdminProtectedRoute: Checking auth, token exists:', !!token);
-        console.log('🔒 AdminProtectedRoute: User state:', { user: !!user, isLoggedIn });
         
         if (!user && token) {
-          console.log('🔄 AdminProtectedRoute: No user but token exists, initializing auth...');
           await initializeAuth();
         }
         
