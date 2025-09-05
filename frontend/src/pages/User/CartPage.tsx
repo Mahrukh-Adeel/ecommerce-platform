@@ -68,10 +68,10 @@ const CartPage: React.FC = () => {
 
   if (!isLoggedIn) {
     return (
-      <>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <NavBar />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
-          <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 6, flex: 1, display: 'flex', alignItems: 'center' }}>
+          <Paper elevation={2} sx={{ p: 4, textAlign: 'center', width: '100%' }}>
             <Typography variant="h5" gutterBottom>
               Please log in to view your cart
             </Typography>
@@ -94,28 +94,28 @@ const CartPage: React.FC = () => {
           </Paper>
         </Container>
         <Footer />
-      </>
+      </Box>
     );
   }
 
   if (isLoading) {
     return (
-      <>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <NavBar />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 6, flex: 1, display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
             <CircularProgress />
           </Box>
         </Container>
         <Footer />
-      </>
+      </Box>
     );
   }
 
   return (
-    <>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <NavBar />
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 6, flex: 1 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Shopping Cart
         </Typography>
@@ -239,7 +239,7 @@ const CartPage: React.FC = () => {
         )}
       </Container>
       <Footer />
-    </>
+    </Box>
   );
 };
 
