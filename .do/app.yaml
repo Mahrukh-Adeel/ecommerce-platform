@@ -1,0 +1,31 @@
+name: ecommerce-backend
+services:
+- name: backend
+  source_dir: /backend
+  github:
+    repo: Mahrukh-Adeel/ecommerce-platform
+    branch: backend-deployemnt
+  run_command: npm start
+  build_command: npm run build
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  routes:
+  - path: /
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "8080"
+  - key: MONGODB_URI
+    scope: RUN_TIME
+    type: SECRET
+  - key: JWT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+  - key: SESSION_SECRET
+    scope: RUN_TIME
+    type: SECRET
+  - key: FRONTEND_URL
+    scope: RUN_TIME
+    type: SECRET
