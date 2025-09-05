@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { Email, Lock, Google } from '@mui/icons-material';
 import { useAuthStore } from '../../store/authStore';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginFormData {
   email: string;
@@ -27,10 +27,6 @@ interface LoginFormErrors {
 const LoginPage: React.FC = () => {
   const { login, loginWithGoogle } = useAuthStore();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  
-  // Get redirect URL from query parameters
-  const redirectUrl = searchParams.get('redirect') || '/';
   
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -88,8 +84,7 @@ const LoginPage: React.FC = () => {
         if (user?.role === 'admin') {
           navigate('/admin/dashboard');
         } else {
-          // Redirect to the original page or home
-          navigate(redirectUrl);
+          navigate('/');
         }
       }, 1000);
       
