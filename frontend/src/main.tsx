@@ -11,6 +11,15 @@ import '@fontsource/roboto/700.css';
 
 
 const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   palette: {
     mode: 'light',
     background: {
@@ -45,7 +54,44 @@ const theme = createTheme({
       dark: '#1b5e20',
       contrastText: '#fff',
     },
-
+  },
+  typography: {
+    h1: {
+      fontSize: '2.5rem',
+      '@media (max-width:600px)': {
+        fontSize: '2rem',
+      },
+    },
+    h2: {
+      fontSize: '2rem',
+      '@media (max-width:600px)': {
+        fontSize: '1.5rem',
+      },
+    },
+    h3: {
+      fontSize: '1.75rem',
+      '@media (max-width:600px)': {
+        fontSize: '1.25rem',
+      },
+    },
+    h4: {
+      fontSize: '1.5rem',
+      '@media (max-width:600px)': {
+        fontSize: '1.1rem',
+      },
+    },
+    h5: {
+      fontSize: '1.25rem',
+      '@media (max-width:600px)': {
+        fontSize: '1rem',
+      },
+    },
+    h6: {
+      fontSize: '1rem',
+      '@media (max-width:600px)': {
+        fontSize: '0.9rem',
+      },
+    },
   },
   components: {
     MuiCssBaseline: {
@@ -55,9 +101,58 @@ const theme = createTheme({
         },
       },
     },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          '@media (max-width:600px)': {
+            paddingLeft: '8px',
+            paddingRight: '8px',
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: '8px',
+          fontWeight: 600,
+          '@media (max-width:600px)': {
+            fontSize: '0.875rem',
+            padding: '8px 16px',
+          },
+        },
+        sizeLarge: {
+          '@media (max-width:600px)': {
+            fontSize: '0.875rem',
+            padding: '10px 20px',
+          },
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          transition: 'all 0.3s ease',
+        },
+      },
+    },
+    MuiGrid: {
+      styleOverrides: {
+        root: {
+          margin: 0,
+          width: '100%',
+        },
+      },
+    },
     MuiAlert: {
       styleOverrides: {
         root: {
+          borderRadius: '8px',
           '&.MuiAlert-standardSuccess': {
             backgroundColor: '#d4edda',
             color: '#155724',

@@ -96,8 +96,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           flexGrow: 1, 
           display: 'flex', 
           flexDirection: 'column',
-          p: 3,
-          '&:last-child': { pb: 3 }
+          p: { xs: 2, sm: 3 },
+          '&:last-child': { pb: { xs: 2, sm: 3 } }
         }}
       >
         <Typography 
@@ -107,7 +107,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             color: 'text.primary',
             mb: 1.5,
             lineHeight: 1.3,
-            fontSize: '18px'
+            fontSize: { xs: '1rem', sm: '1.125rem' }
           }}
         >
           {product.name}
@@ -120,7 +120,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
               color: 'text.secondary',
               mb: 2,
               lineHeight: 1.5,
-              fontSize: '14px',
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
               flexGrow: 1
             }}
           >
@@ -136,7 +136,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             sx={{ 
               bgcolor: `${theme.palette.secondary.main}1A`,
               borderRadius: 1,
-              p: 1.5,
+              p: { xs: 1, sm: 1.5 },
               mb: 2,
               borderLeft: `4px solid ${theme.palette.secondary.main}`
             }}
@@ -146,7 +146,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
               sx={{ 
                 color: 'primary.main',
                 fontWeight: 700,
-                fontSize: '22px'
+                fontSize: { xs: '1.25rem', sm: '1.375rem' }
               }}
             >
               ${product.price.toLocaleString()}
@@ -155,7 +155,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
               variant="caption" 
               sx={{ 
                 color: 'secondary.main',
-                fontSize: '12px',
+                fontSize: { xs: '0.625rem', sm: '0.75rem' },
                 fontWeight: 500
               }}
             >
@@ -163,7 +163,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: { xs: 1, sm: 1.5 }, alignItems: 'center' }}>
             <Button
               variant="contained"
               fullWidth
@@ -173,9 +173,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                 bgcolor: 'primary.main',
                 color: 'white',
                 fontWeight: 600,
-                py: 1,
+                py: { xs: 0.75, sm: 1 },
                 textTransform: 'none',
-                fontSize: '14px',
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
                 borderRadius: 1.5,
                 '&:hover': {
                   bgcolor: 'primary.dark',
@@ -192,8 +192,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             <Button
               onClick={handleWishlistToggle}
               sx={{
-                minWidth: 48,
-                height: 48,
+                minWidth: { xs: 40, sm: 48 },
+                height: { xs: 40, sm: 48 },
                 borderRadius: 1.5,
                 color: isProductInWishlist ? 'secondary.main' : 'text.disabled',
                 bgcolor: isProductInWishlist ? `${theme.palette.secondary.main}1A` : 'rgba(0, 0, 0, 0.04)',

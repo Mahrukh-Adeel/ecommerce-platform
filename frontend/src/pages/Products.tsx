@@ -113,10 +113,10 @@ const Products: React.FC = () => {
     <>
       <NavBar />
       <Container
+        maxWidth={false}
         sx={{
-          minWidth: "100vw",
-          m: 0,
-          p: 2,
+          px: { xs: 1, sm: 2, md: 3 },
+          py: 2,
           minHeight: "80vh",
         }}
       >
@@ -125,12 +125,14 @@ const Products: React.FC = () => {
           align="center"
           gutterBottom
           sx={{
-            m: 4,
+            m: { xs: 2, sm: 3, md: 4 },
             mb: 4,
             color: "text.primary",
             textDecoration: "underline",
             textDecorationColor: (theme) => theme.palette.secondary.main,
             fontWeight: "bold",
+            fontSize: { xs: '1.75rem', sm: '2.125rem', md: '2.5rem' },
+            px: { xs: 1, sm: 2 }
           }}
         >
           Products
@@ -138,21 +140,28 @@ const Products: React.FC = () => {
         <Typography
           variant="body1"
           align="center"
-          sx={{ mt: 2, mb: 4, color: "text.secondary" }}
+          sx={{ 
+            mt: 2, 
+            mb: 4, 
+            color: "text.secondary",
+            fontSize: { xs: '0.875rem', sm: '1rem' },
+            px: { xs: 2, sm: 3 }
+          }}
         >
           Explore our wide range of furniture products designed to enhance your
           living space.
         </Typography>
 
         {/* Search and Sort */}
-        <Paper sx={{ p: 2, mb: 4 }}>
-          <Grid container spacing={2}>
+        <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: 4, mx: { xs: 0, sm: 'auto' }, maxWidth: '1200px' }}>
+          <Grid container spacing={{ xs: 1, sm: 2 }}>
             <Grid size={{ xs: 12, md: 8 }}>
               <TextField
                 fullWidth
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                size={window.innerWidth < 600 ? "small" : "medium"}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -160,12 +169,26 @@ const Products: React.FC = () => {
                     </InputAdornment>
                   ),
                 }}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  }
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <FormControl fullWidth variant="outlined">
+              <FormControl fullWidth variant="outlined" size={window.innerWidth < 600 ? "small" : "medium"}>
                 <InputLabel>Sort By</InputLabel>
-                <Select value={sortBy} label="Sort By" onChange={handleSortChange}>
+                <Select 
+                  value={sortBy} 
+                  label="Sort By" 
+                  onChange={handleSortChange}
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    }
+                  }}
+                >
                   <MenuItem value="name">Name (A-Z)</MenuItem>
                   <MenuItem value="price-low">Price: Low to High</MenuItem>
                   <MenuItem value="price-high">Price: High to Low</MenuItem>
@@ -175,34 +198,53 @@ const Products: React.FC = () => {
           </Grid>
         </Paper>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Showing {filteredProducts.length} of {allProducts.length} products
-        </Typography>
+        <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ 
+              mb: 2,
+              px: { xs: 1, sm: 0 },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}
+          >
+            Showing {filteredProducts.length} of {allProducts.length} products
+          </Typography>
 
-        {/* Products Grid */}
-        {filteredProducts.length > 0 ? (
-          <Grid container spacing={3}>
-            {filteredProducts.map((product) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product._id}>
-                <ProductCard 
-                  product={product} 
-                  onAddToCart={handleAddToCart} 
-                />
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
-          <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              {searchTerm ? 'No products found' : 'No products available'}
-            </Typography>
-            {searchTerm && (
-              <Typography variant="body2" color="text.secondary">
-                Try adjusting your search terms
+          {/* Products Grid */}
+          {filteredProducts.length > 0 ? (
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
+              {filteredProducts.map((product) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product._id}>
+                  <ProductCard 
+                    product={product} 
+                    onAddToCart={handleAddToCart} 
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography 
+                variant="h6" 
+                color="text.secondary" 
+                gutterBottom
+                sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+              >
+                {searchTerm ? 'No products found' : 'No products available'}
               </Typography>
-            )}
-          </Box>
-        )}
+              {searchTerm && (
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary"
+                  sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                >
+                  Try adjusting your search terms
+                </Typography>
+              )}
+            </Box>
+          )}
+        </Box>
       </Container>
       <Footer />
     </>

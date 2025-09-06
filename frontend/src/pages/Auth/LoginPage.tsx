@@ -104,30 +104,47 @@ const LoginPage: React.FC = () => {
     <Container 
       maxWidth="sm" 
       sx={{
-        py: 8,
+        py: { xs: 4, sm: 6, md: 8 },
+        px: { xs: 2, sm: 3 },
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        minWidth: '100vw'
+        bgcolor: 'background.default'
       }}
     >
       <Paper 
         elevation={3} 
         sx={{ 
-          p: 4, 
+          p: { xs: 3, sm: 4, md: 5 }, 
           borderRadius: 2, 
           width: '100%', 
-          maxWidth: 500, 
+          maxWidth: { xs: '100%', sm: 450, md: 500 }, 
           mx: 'auto' 
         }}
       >
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+        <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4 } }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom 
+            sx={{ 
+              color: 'primary.main', 
+              fontWeight: 'bold',
+              fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' },
+              mb: 2
+            }}
+          >
             Welcome Back
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography 
+            variant="body1" 
+            color="text.secondary"
+            sx={{
+              fontSize: { xs: '0.875rem', sm: '1rem' }
+            }}
+          >
             Sign in to your Everwood account
           </Typography>
         </Box>
@@ -135,7 +152,12 @@ const LoginPage: React.FC = () => {
         {submitMessage && (
           <Alert 
             severity={submitMessage.includes('successful') ? 'success' : 'error'} 
-            sx={{ mb: 3 }}
+            sx={{ 
+              mb: 3,
+              '& .MuiAlert-message': {
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              }
+            }}
           >
             {submitMessage}
           </Alert>
@@ -153,8 +175,17 @@ const LoginPage: React.FC = () => {
             error={!!errors.email}
             helperText={errors.email}
             margin="normal"
+            size={window.innerWidth < 600 ? "small" : "medium"}
             InputProps={{
               startAdornment: <Email sx={{ color: 'action.active', mr: 1 }} />
+            }}
+            sx={{
+              '& .MuiInputLabel-root': {
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              },
+              '& .MuiInputBase-input': {
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              }
             }}
           />
 
@@ -169,8 +200,17 @@ const LoginPage: React.FC = () => {
             error={!!errors.password}
             helperText={errors.password}
             margin="normal"
+            size={window.innerWidth < 600 ? "small" : "medium"}
             InputProps={{
               startAdornment: <Lock sx={{ color: 'action.active', mr: 1 }} />
+            }}
+            sx={{
+              '& .MuiInputLabel-root': {
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              },
+              '& .MuiInputBase-input': {
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              }
             }}
           />
 
@@ -180,10 +220,13 @@ const LoginPage: React.FC = () => {
             fullWidth
             variant="contained"
             disabled={isSubmitting}
+            size={window.innerWidth < 600 ? "medium" : "large"}
             sx={{
               mt: 3,
               mb: 2,
-              py: 1.5,
+              py: { xs: 1.25, sm: 1.5 },
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+              fontWeight: 600,
               bgcolor: 'primary.main',
               '&:hover': {
                 bgcolor: 'primary.dark'
@@ -195,7 +238,11 @@ const LoginPage: React.FC = () => {
 
           {/* Google Login Button */}
           <Divider sx={{ my: 2 }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+            >
               OR
             </Typography>
           </Divider>
@@ -205,9 +252,12 @@ const LoginPage: React.FC = () => {
             variant="outlined"
             startIcon={<Google />}
             onClick={handleGoogleLogin}
+            size={window.innerWidth < 600 ? "medium" : "large"}
             sx={{
               mb: 2,
-              py: 1.5,
+              py: { xs: 1.25, sm: 1.5 },
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+              fontWeight: 500,
               borderColor: 'grey.300',
               color: 'text.primary',
               '&:hover': {
@@ -220,14 +270,19 @@ const LoginPage: React.FC = () => {
           </Button>
 
           {/* Signup Link */}
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box sx={{ textAlign: 'center', mt: { xs: 2, sm: 3 } }}>
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+            >
               Don't have an account?{' '}
               <Link 
                 href="/signup" 
                 sx={{ 
                   color: 'secondary.main',
                   textDecoration: 'none',
+                  fontWeight: 500,
                   '&:hover': { textDecoration: 'underline' }
                 }}
               >

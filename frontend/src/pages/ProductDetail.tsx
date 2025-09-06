@@ -49,16 +49,41 @@ const ProductDetail: React.FC = () => {
     quantity,
     setSelectedImage,
     incrementQuantity,
-    decrementQuantity
+    decrementQuantity,
+    resetQuantity
   } = useUIStore();
   
-  const { isLoggedIn } = useAuthStore();
   const { addItemToCart } = useCartStore();
-  const { addItemToWishlist, isInWishlist } = useWishlistStore();
+  const { 
+    isInWishlist, 
+    addItemToWishlist, 
+    removeItemFromWishlist 
+  } = useWishlistStore();
+  const { isLoggedIn } = useAuthStore();
 
-  // Alert state management
   const [showLoginAlert, setShowLoginAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+
+  const features = [
+    { icon: <LocalShipping />, text: "Free shipping on orders over $500" },
+    { icon: <Security />, text: "2-year warranty included" },
+    { icon: <Refresh />, text: "Easy returns within 30 days" }
+  ];
+
+  useEffect(() => {
+    if (productId) {
+      fetchSingleProduct(productId);
+      resetQuantity();
+    }
+  }, [productId, fetchSingleProduct, resetQuantity]);
+
+  const handleQuantityChange = (delta: number) => {
+    if (delta > 0) {
+      incrementQuantity();
+    } else if (delta < 0 && quantity > 1) {
+      decrementQuantity();
+    }
+  };
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -71,7 +96,7 @@ const ProductDetail: React.FC = () => {
     
     try {
       await addItemToCart(product._id, quantity);
-      console.log('Product added to cart:', product._id, 'Quantity:', quantity);
+      // Optionally show success message
     } catch (error) {
       console.error('Failed to add product to cart:', error);
     }
@@ -85,66 +110,28 @@ const ProductDetail: React.FC = () => {
       setShowLoginAlert(true);
       return;
     }
-
+    
     try {
       if (isInWishlist(product._id)) {
-        console.log('Product already in wishlist');
-        return;
-      }
-      
-      await addItemToWishlist(product._id);
-      console.log('Product added to wishlist:', product._id);
-    } catch (error) {
-      console.error('Failed to add product to wishlist:', error);
-    }
-  };
-
-  const handleShare = async () => {
-    if (!product) return;
-    
-    const shareData = {
-      title: product.name,
-      text: `Check out this amazing product: ${product.name}`,
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-        console.log('Product shared successfully');
+        await removeItemFromWishlist(product._id);
       } else {
-        // Fallback: Copy to clipboard
-        await navigator.clipboard.writeText(window.location.href);
-        // You could show a toast notification here
-        console.log('Product URL copied to clipboard');
-        alert('Product URL copied to clipboard!');
+        await addItemToWishlist(product._id);
       }
     } catch (error) {
-      console.error('Error sharing product:', error);
+      console.error('Failed to toggle wishlist:', error);
     }
   };
 
-  useEffect(() => {
-    const loadProduct = async () => {
-      if (!productId) {
-        return;
-      }
-
-      try {
-        await fetchSingleProduct(productId);
-      } catch (err) {
-        console.error('Error loading product:', err);
-      }
-    };
-
-    loadProduct();
-  }, [productId, fetchSingleProduct]);
-
-  const handleQuantityChange = (change: number) => {
-    if (change > 0) {
-      incrementQuantity();
-    } else if (change < 0) {
-      decrementQuantity();
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product?.name,
+        text: product?.description,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      // Could show a toast notification here
     }
   };
 
@@ -152,7 +139,13 @@ const ProductDetail: React.FC = () => {
     return (
       <>
         <NavBar />
-        <Container sx={{ py: 4, minHeight: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Container sx={{ 
+          py: { xs: 4, sm: 6, md: 8 }, 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          minHeight: '50vh'
+        }}>
           <CircularProgress size={60} />
         </Container>
         <Footer />
@@ -164,13 +157,17 @@ const ProductDetail: React.FC = () => {
     return (
       <>
         <NavBar />
-        <Container sx={{ py: 4, minHeight: "80vh" }}>
-          <Alert severity="error" sx={{ mb: 2 }}>
+        <Container sx={{ py: { xs: 4, sm: 6, md: 8 } }}>
+          <Alert 
+            severity="error" 
+            sx={{ 
+              maxWidth: 600, 
+              mx: 'auto',
+              fontSize: { xs: '0.875rem', sm: '1rem' }
+            }}
+          >
             {error || 'Product not found'}
           </Alert>
-          <Button variant="contained" onClick={() => navigate('/')}>
-            Back to Home
-          </Button>
         </Container>
         <Footer />
       </>
@@ -180,17 +177,28 @@ const ProductDetail: React.FC = () => {
   return (
     <>
       <NavBar />
-      <Container sx={{ py: 4, minHeight: "80vh" }}>
-        <Grid container spacing={4}>
+      <Container 
+        maxWidth="lg"
+        sx={{ 
+          py: { xs: 2, sm: 3, md: 4 }, 
+          px: { xs: 1, sm: 2 },
+          minHeight: "80vh" 
+        }}
+      >
+        <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
           {/* Product Images */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Paper elevation={2} sx={{ p: 2 }}>
+            <Paper elevation={2} sx={{ p: { xs: 1.5, sm: 2 } }}>
               <CardMedia
                 component="img"
-                height="400"
                 image={(product.images && product.images.length > 0) ? product.images[selectedImage] : '/placeholder-image.jpg'}
                 alt={product.name}
-                sx={{ borderRadius: 1, mb: 2 }}
+                sx={{ 
+                  borderRadius: 1, 
+                  mb: 2,
+                  height: { xs: 300, sm: 350, md: 400 },
+                  objectFit: 'cover'
+                }}
               />
               {product.images && product.images.length > 1 && (
                 <Grid container spacing={1}>
@@ -198,17 +206,20 @@ const ProductDetail: React.FC = () => {
                     <Grid size={{ xs: 3 }} key={index}>
                       <CardMedia
                         component="img"
-                        height="80"
                         image={image}
                         alt={`${product.name} view ${index + 1}`}
                         onClick={() => setSelectedImage(index)}
                         sx={{
                           borderRadius: 1,
                           cursor: "pointer",
+                          height: { xs: 60, sm: 70, md: 80 },
+                          objectFit: 'cover',
                           border: selectedImage === index ? 2 : 1,
                           borderColor: selectedImage === index ? "primary.main" : "grey.300",
+                          transition: 'all 0.2s ease',
                           "&:hover": {
                             borderColor: "primary.main",
+                            transform: 'scale(1.05)'
                           },
                         }}
                       />
@@ -221,97 +232,240 @@ const ProductDetail: React.FC = () => {
 
           {/* Product Details */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Box>
-              <Typography variant="h4" component="h1" gutterBottom>
+            <Box sx={{ px: { xs: 1, sm: 2, md: 0 } }}>
+              <Typography 
+                variant="h4" 
+                component="h1" 
+                gutterBottom
+                sx={{
+                  fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' },
+                  fontWeight: 'bold',
+                  mb: { xs: 2, sm: 3 }
+                }}
+              >
                 {product.name}
               </Typography>
 
               {product.category && (
-                <Typography variant="subtitle1" sx={{ color: "text.secondary", mb: 1 }}>
+                <Typography 
+                  variant="subtitle1" 
+                  sx={{ 
+                    color: "text.secondary", 
+                    mb: 2,
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                    fontWeight: 500
+                  }}
+                >
                   Category: {product.category.name}
                 </Typography>
               )}
 
-              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <Typography variant="h5" sx={{ color: "primary.main", fontWeight: "bold" }}>
-                  ${product.price}
+              <Box sx={{ display: "flex", alignItems: "center", mb: { xs: 2, sm: 3 } }}>
+                <Typography 
+                  variant="h5" 
+                  sx={{ 
+                    color: "primary.main", 
+                    fontWeight: "bold",
+                    fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }
+                  }}
+                >
+                  ${product.price?.toLocaleString()}
                 </Typography>
               </Box>
 
-              <Typography variant="body1" sx={{ mb: 3, color: "text.secondary" }}>
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  mb: 3, 
+                  color: "text.secondary",
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                  lineHeight: 1.6
+                }}
+              >
                 {product.description}
               </Typography>
 
-              <Divider sx={{ mb: 3 }} />
+              <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
 
               {/* Quantity and Add to Cart */}
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>
+              <Box sx={{ mb: { xs: 2, sm: 3 } }}>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom
+                  sx={{
+                    fontSize: { xs: '1rem', sm: '1.125rem' },
+                    fontWeight: 600,
+                    mb: 1.5
+                  }}
+                >
                   Quantity
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <IconButton onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
-                    <Remove />
+                <Box 
+                  sx={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    mb: { xs: 2, sm: 3 },
+                    gap: 1
+                  }}
+                >
+                  <IconButton 
+                    onClick={() => handleQuantityChange(-1)} 
+                    disabled={quantity <= 1}
+                    size={window.innerWidth < 600 ? "small" : "medium"}
+                    sx={{
+                      border: 1,
+                      borderColor: 'divider',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        bgcolor: 'primary.main',
+                        color: 'white'
+                      }
+                    }}
+                  >
+                    <Remove fontSize="small" />
                   </IconButton>
-                  <Typography variant="h6" sx={{ mx: 2, minWidth: "40px", textAlign: "center" }}>
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      minWidth: { xs: 40, sm: 60 }, 
+                      textAlign: 'center',
+                      fontSize: { xs: '1rem', sm: '1.125rem' },
+                      fontWeight: 600,
+                      px: 2,
+                      py: 1,
+                      border: 1,
+                      borderColor: 'divider',
+                      borderRadius: 1
+                    }}
+                  >
                     {quantity}
                   </Typography>
-                  <IconButton onClick={() => handleQuantityChange(1)}>
-                    <Add />
+                  <IconButton 
+                    onClick={() => handleQuantityChange(1)}
+                    size={window.innerWidth < 600 ? "small" : "medium"}
+                    sx={{
+                      border: 1,
+                      borderColor: 'divider',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        bgcolor: 'primary.main',
+                        color: 'white'
+                      }
+                    }}
+                  >
+                    <Add fontSize="small" />
                   </IconButton>
                 </Box>
-              </Box>
 
-              <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  startIcon={<ShoppingCart />}
-                  sx={{ flex: 1 }}
-                  onClick={handleAddToCart}
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    gap: { xs: 1, sm: 2 }, 
+                    mb: 3,
+                    flexDirection: { xs: 'column', sm: 'row' }
+                  }}
                 >
-                  Add to Cart
-                </Button>
-                <IconButton 
-                  size="large" 
-                  onClick={handleAddToWishlist}
-                  color={product && isInWishlist(product._id) ? "error" : "default"}
-                  title="Add to Wishlist"
-                >
-                  {product && isInWishlist(product._id) ? <Favorite /> : <FavoriteBorder />}
-                </IconButton>
-                <IconButton 
-                  size="large"
-                  onClick={handleShare}
-                  title="Share Product"
-                >
-                  <Share />
-                </IconButton>
-              </Box>
-
-              {/* Product Features */}
-              <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-around", textAlign: "center" }}>
-                  <Box>
-                    <LocalShipping color="primary" sx={{ fontSize: 30, mb: 1 }} />
-                    <Typography variant="caption" display="block">
-                      Free Shipping
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Security color="primary" sx={{ fontSize: 30, mb: 1 }} />
-                    <Typography variant="caption" display="block">
-                      2 Year Warranty
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Refresh color="primary" sx={{ fontSize: 30, mb: 1 }} />
-                    <Typography variant="caption" display="block">
-                      30 Day Returns
-                    </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    fullWidth={window.innerWidth < 600}
+                    onClick={handleAddToCart}
+                    startIcon={<ShoppingCart />}
+                    sx={{
+                      py: { xs: 1.5, sm: 2 },
+                      px: { xs: 3, sm: 4 },
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      fontWeight: 600,
+                      flex: { xs: 'none', sm: 1 }
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                  
+                  <Box sx={{ 
+                    display: 'flex', 
+                    gap: { xs: 1, sm: 2 },
+                    justifyContent: { xs: 'center', sm: 'flex-start' }
+                  }}>
+                    <IconButton
+                      onClick={handleAddToWishlist}
+                      size="large"
+                      sx={{
+                        border: 1,
+                        borderColor: 'divider',
+                        color: isInWishlist(product._id) ? 'secondary.main' : 'text.secondary',
+                        '&:hover': {
+                          borderColor: 'secondary.main',
+                          color: 'secondary.main'
+                        }
+                      }}
+                    >
+                      {isInWishlist(product._id) ? <Favorite /> : <FavoriteBorder />}
+                    </IconButton>
+                    
+                    <IconButton
+                      onClick={handleShare}
+                      size="large"
+                      sx={{
+                        border: 1,
+                        borderColor: 'divider',
+                        '&:hover': {
+                          borderColor: 'primary.main',
+                          color: 'primary.main'
+                        }
+                      }}
+                    >
+                      <Share />
+                    </IconButton>
                   </Box>
                 </Box>
-              </Paper>
+              </Box>
+
+              <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
+
+              {/* Features */}
+              <Box>
+                <Typography 
+                  variant="h6" 
+                  gutterBottom
+                  sx={{
+                    fontSize: { xs: '1rem', sm: '1.125rem' },
+                    fontWeight: 600,
+                    mb: 2
+                  }}
+                >
+                  Why Choose This Product?
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {features.map((feature, index) => (
+                    <Box 
+                      key={index} 
+                      sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 1.5 
+                      }}
+                    >
+                      <Box sx={{ 
+                        color: 'secondary.main',
+                        '& svg': { fontSize: { xs: 20, sm: 24 } }
+                      }}>
+                        {feature.icon}
+                      </Box>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: 'text.secondary',
+                          fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
+                      >
+                        {feature.text}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
             </Box>
           </Grid>
         </Grid>
