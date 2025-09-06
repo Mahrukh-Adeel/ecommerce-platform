@@ -26,7 +26,7 @@ import NavBar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoginRequiredAlert from "../components/ui/LoginRequiredAlert";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
 import { useAuthStore } from '../store/authStore';
@@ -35,7 +35,6 @@ import { useUIStore } from '../store/uiStore';
 
 const ProductDetail: React.FC = () => {
   const { id: productId } = useParams();
-  const navigate = useNavigate();
   
   const { 
     currentProduct: product, 
@@ -50,7 +49,7 @@ const ProductDetail: React.FC = () => {
     setSelectedImage,
     incrementQuantity,
     decrementQuantity,
-    resetQuantity
+    resetProductDetailState
   } = useUIStore();
   
   const { addItemToCart } = useCartStore();
@@ -73,9 +72,9 @@ const ProductDetail: React.FC = () => {
   useEffect(() => {
     if (productId) {
       fetchSingleProduct(productId);
-      resetQuantity();
+      resetProductDetailState();
     }
-  }, [productId, fetchSingleProduct, resetQuantity]);
+  }, [productId, fetchSingleProduct, resetProductDetailState]);
 
   const handleQuantityChange = (delta: number) => {
     if (delta > 0) {
@@ -96,7 +95,6 @@ const ProductDetail: React.FC = () => {
     
     try {
       await addItemToCart(product._id, quantity);
-      // Optionally show success message
     } catch (error) {
       console.error('Failed to add product to cart:', error);
     }

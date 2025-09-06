@@ -197,7 +197,14 @@ const Profile: React.FC = () => {
     <>
       <NavBar />
       
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          mt: { xs: 2, sm: 3, md: 4 }, 
+          mb: { xs: 4, sm: 5, md: 6 },
+          px: { xs: 2, sm: 3 }
+        }}
+      >
         {!user ? (
           <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
             <Typography variant="h5" gutterBottom>
@@ -210,23 +217,38 @@ const Profile: React.FC = () => {
         ) : (
           <>
             {/* Header Section */}
-            <Paper elevation={2} sx={{ p: 4, mb: 4 }}>
+            <Paper elevation={2} sx={{ p: { xs: 2, sm: 3, md: 4 }, mb: { xs: 2, sm: 3, md: 4 } }}>
           <Grid container spacing={3} alignItems="center">
-            <Grid size={{ xs: 12, md: 2 }}>
-              <Avatar
-                sx={{
-                  width: 100,
-                  height: 100,
-                  bgcolor: 'primary.main',
-                  fontSize: '2rem',
-                }}
-              >
-                {userInfo.name.split(' ').map(n => n[0]).join('')}
-              </Avatar>
+            <Grid size={{ xs: 12, sm: 4, md: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: { xs: 'center', sm: 'flex-start' } }}>
+                <Avatar
+                  sx={{
+                    width: { xs: 80, sm: 90, md: 100 },
+                    height: { xs: 80, sm: 90, md: 100 },
+                    bgcolor: 'primary.main',
+                    fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+                  }}
+                >
+                  {userInfo.name.split(' ').map(n => n[0]).join('')}
+                </Avatar>
+              </Box>
             </Grid>
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Typography variant="h4" sx={{ color: 'primary.main' }}>
+            <Grid size={{ xs: 12, sm: 8, md: 7 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'center', sm: 'center' }, 
+                gap: 1, 
+                mb: 1,
+                textAlign: { xs: 'center', sm: 'left' }
+              }}>
+                <Typography 
+                  variant="h4" 
+                  sx={{ 
+                    color: 'primary.main',
+                    fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }
+                  }}
+                >
                   {userInfo.name}
                 </Typography>
                 {userInfo.provider === 'google' && (
