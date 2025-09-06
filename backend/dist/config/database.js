@@ -7,11 +7,14 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const MONGO_URI = process.env.MONGO_URI;
 const connectDB = async () => {
     try {
-        await mongoose_1.default.connect(MONGO_URI);
+        await mongoose_1.default.connect(MONGO_URI, {
+            ssl: true,
+            serverSelectionTimeoutMS: 5000,
+        });
         console.log("MongoDB Connected");
     }
-    catch {
-        console.log("MongoDB Connection Failed");
+    catch (error) {
+        console.error("MongoDB Connection Failed:", error);
         process.exit(1);
     }
 };

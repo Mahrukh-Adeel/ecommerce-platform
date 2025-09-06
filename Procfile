@@ -1,1 +1,1 @@
-web: cd backend && node debug-heroku.js && npm start
+web: cd backend && npm start
