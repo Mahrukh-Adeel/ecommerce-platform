@@ -56,7 +56,7 @@ export const logoutUser = async () => {
 
 export const initiateGoogleAuth = () => {
     const baseURL = api.defaults.baseURL;
-    window.location.href = `${baseURL}/auth/google`;
+    window.location.href = `${baseURL}/api/auth/google`;
 };
 
 export const handleGoogleCallback = (searchParams: URLSearchParams) => {
